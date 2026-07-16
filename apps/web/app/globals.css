@@ -124,10 +124,11 @@ button.secondary,
   border-radius: 9px;
   color: var(--accent-ink);
   display: inline-flex;
+  font-size: 0.72rem;
   height: 32px;
   justify-content: center;
   transform: rotate(-5deg);
-  width: 27px;
+  width: 32px;
 }
 
 nav {

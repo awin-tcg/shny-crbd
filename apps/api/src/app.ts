@@ -73,7 +73,7 @@ export async function buildApp(
   await app.register(swagger, {
     openapi: {
       info: {
-        title: "Cardboard API",
+        title: "CRDBRD API",
         version: "0.1.0",
         description: "Private trading-card portfolio API",
       },

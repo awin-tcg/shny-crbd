@@ -43,8 +43,8 @@ export default function App() {
     return (
       <SafeAreaView style={styles.login}>
         <StatusBar style="light" />
-        <View style={styles.logo}>
-          <Text style={styles.logoText}>C</Text>
+        <View style={styles.logo} accessible accessibilityLabel="CRDBRD">
+          <Text style={styles.logoText}>CR</Text>
         </View>
         <Text style={styles.hero}>Your collection,{`\n`}in focus.</Text>
         <Text style={styles.muted}>
@@ -69,7 +69,7 @@ export default function App() {
     <SafeAreaView style={styles.app}>
       <StatusBar style="light" />
       <View style={styles.mobileHeader}>
-        <Text style={styles.wordmark}>Cardboard</Text>
+        <Text style={styles.wordmark}>CRDBRD</Text>
         <Pressable
           accessibilityRole="button"
           onPress={() => identity.signOut().then(() => setSession(null))}
@@ -277,9 +277,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginBottom: 30,
     transform: [{ rotate: "-5deg" }],
-    width: 44,
+    width: 52,
   },
-  logoText: { color: "#13210b", fontSize: 25, fontWeight: "900" },
+  logoText: { color: "#13210b", fontSize: 21, fontWeight: "900" },
   hero: {
     color: "#f6f7f9",
     fontSize: 48,

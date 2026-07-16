@@ -1,6 +1,7 @@
-# Cardboard
+# CRDBRD
 
-Security-first trading-card search and private portfolio valuation for web and mobile.
+CRDBRD is a security-first trading-card search and private portfolio valuation
+app for web and mobile.
 
 ## Start locally
 

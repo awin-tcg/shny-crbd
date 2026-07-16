@@ -2,7 +2,9 @@
 
 ## Product goal
 
-Cardboard helps US collectors find trading cards and track the market value and cost basis of a private collection. The MVP supports Pokémon, One Piece, Gundam, and Yu-Gi-Oh! through a provider-neutral catalog.
+CRDBRD helps US collectors find trading cards and track the market value and cost
+basis of a private collection. The MVP supports Pokémon, One Piece, Gundam, and
+Yu-Gi-Oh! through a provider-neutral catalog.
 
 ## Actors
 

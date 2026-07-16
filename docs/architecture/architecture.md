@@ -2,7 +2,9 @@
 
 ## Context
 
-Cardboard is a multi-client portfolio service. Browser and native clients call one versioned API. The API owns authorization and persistence and is the only component allowed to call market-data and identity providers with secrets.
+CRDBRD is a multi-client portfolio service. Browser and native clients call one
+versioned API. The API owns authorization and persistence and is the only
+component allowed to call market-data and identity providers with secrets.
 
 ```mermaid
 flowchart LR
