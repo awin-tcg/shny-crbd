@@ -1,0 +1,37 @@
+{
+  "expo": {
+    "name": "Cardboard",
+    "slug": "cardboard",
+    "scheme": "cardboard",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "app.cardboard.mobile",
+      "usesAppleSignIn": true,
+      "associatedDomains": ["applinks:cardboard.app"]
+    },
+    "android": {
+      "package": "app.cardboard.mobile",
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "https",
+              "host": "cardboard.app",
+              "pathPrefix": "/oauth/callback"
+            }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ]
+    },
+    "plugins": ["expo-secure-store"],
+    "extra": {
+      "authMode": "mock"
+    }
+  }
+}

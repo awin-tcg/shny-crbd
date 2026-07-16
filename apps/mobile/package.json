@@ -1,0 +1,28 @@
+{
+  "name": "@cardboard/mobile",
+  "version": "0.1.0",
+  "private": true,
+  "main": "node_modules/expo/AppEntry.js",
+  "scripts": {
+    "build": "tsc --noEmit",
+    "dev": "expo start",
+    "lint": "tsc --noEmit",
+    "start": "expo start",
+    "test": "vitest run --passWithNoTests",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@cardboard/contracts": "workspace:*",
+    "expo": "^53.0.20",
+    "expo-auth-session": "^6.2.1",
+    "expo-secure-store": "^14.2.3",
+    "expo-status-bar": "^2.2.3",
+    "react": "^19.1.0",
+    "react-native": "^0.79.5"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.8",
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.4"
+  }
+}
