@@ -1,5 +1,19 @@
 # Functional Requirements
 
+## Document control
+
+- **Status:** Active MVP requirements.
+- **Maintenance trigger:** Update when product scope, acceptance journeys, or
+  functional and quality requirements change.
+
+### Revision history
+
+- `e59dee4` (2026-07-15): Renamed the user-facing product to CRDBRD.
+- `4ad1e16` (2026-07-15): Added temporary trade-calculator requirements and its
+  acceptance journey.
+- `6240bb7` (2026-07-15): Established the MVP functional and quality
+  requirements.
+
 ## Product goal
 
 CRDBRD helps US collectors find trading cards and track the market value and cost

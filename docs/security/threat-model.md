@@ -1,5 +1,20 @@
 # STRIDE Threat Model
 
+## Document control
+
+- **Status:** Living MVP security model.
+- **Owner:** Security owners.
+- **Maintenance trigger:** Update for every new trust boundary, provider,
+  sensitive field, public sharing feature, or material control or residual-risk
+  change.
+
+### Revision history
+
+- `4ad1e16` (2026-07-15): Added trade-analysis integrity as an asset and threat
+  T-04 with controls and verification.
+- `6240bb7` (2026-07-15): Established the STRIDE scope, threat register,
+  controls, and security gates.
+
 ## Scope and method
 
 This living model covers browser/mobile clients, the public API, jobs, PostgreSQL, cache, OIDC providers, market-data providers, CI/CD, and operator access. Threat IDs are referenced by tests and controls. Review on every new trust boundary, provider, sensitive field, or public sharing feature.

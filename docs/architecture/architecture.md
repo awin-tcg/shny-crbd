@@ -1,5 +1,19 @@
 # Architecture Design
 
+## Document control
+
+- **Status:** Active MVP architecture baseline.
+- **Maintenance trigger:** Update when a component, trust boundary, data flow,
+  deployment model, or architectural constraint changes.
+
+### Revision history
+
+- `e59dee4` (2026-07-15): Renamed the user-facing product to CRDBRD.
+- `4ad1e16` (2026-07-15): Added the temporary, client-side trade-analysis
+  design and lifecycle constraints.
+- `6240bb7` (2026-07-15): Established the MVP architecture, data flows, and
+  operational model.
+
 ## Context
 
 CRDBRD is a multi-client portfolio service. Browser and native clients call one
