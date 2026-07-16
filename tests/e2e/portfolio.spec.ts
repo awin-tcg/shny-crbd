@@ -13,6 +13,65 @@ test("collector sees portfolio value and exact-variant holdings", async ({
   await expect(page.getByText(/near mint/i)).toBeVisible();
 });
 
+test("desktop keeps top navigation with an accessible active state", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto("/");
+
+  const desktopNavigation = page.locator(".desktop-navigation");
+  await expect(desktopNavigation).toBeVisible();
+  await expect(page.locator(".mobile-navigation")).toBeHidden();
+  await expect(
+    desktopNavigation.getByRole("link", { name: "Portfolio" }),
+  ).toHaveAttribute("aria-current", "page");
+
+  await desktopNavigation.getByRole("link", { name: "Search" }).click();
+  await expect(
+    desktopNavigation.getByRole("link", { name: "Search" }),
+  ).toHaveAttribute("aria-current", "page");
+});
+
+test("mobile uses a clear bottom navigation without duplicating landmarks", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/");
+
+  const mobileNavigation = page.locator(".mobile-navigation");
+  await expect(mobileNavigation).toBeVisible();
+  await expect(page.locator(".desktop-navigation")).toBeHidden();
+  await expect(page.getByRole("navigation")).toHaveCount(1);
+  await expect(
+    mobileNavigation.getByRole("link", { name: "Portfolio" }),
+  ).toHaveAttribute("aria-current", "page");
+  await expect(
+    mobileNavigation.getByRole("link", { name: "Portfolio" }),
+  ).toHaveCSS("min-height", "54px");
+  await expect(mobileNavigation.getByRole("link")).toHaveCount(3);
+});
+
+test("dashboard presents totals and chart before secondary details", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/");
+
+  const sectionOrder = await page
+    .locator("[data-dashboard-section]")
+    .evaluateAll((sections) =>
+      sections.map((section) => section.getAttribute("data-dashboard-section")),
+    );
+
+  expect(sectionOrder).toEqual(["totals", "chart", "coverage", "holdings"]);
+  await expect(
+    page.getByRole("img", { name: /portfolio value changed/i }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("Latest snapshot", { exact: false }),
+  ).toBeVisible();
+});
+
 test("collector searches and adds a card", async ({ page }) => {
   await page.goto("/search");
   await page.getByLabel("Card, set, or number").fill("Blue-Eyes");

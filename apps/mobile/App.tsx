@@ -78,13 +78,16 @@ export default function App() {
         </Pressable>
       </View>
       {tab === "portfolio" ? (
-        <PortfolioScreen session={session} />
+        <PortfolioScreen session={session} onSearch={() => setTab("search")} />
       ) : (
         <SearchScreen session={session} />
       )}
-      <View style={styles.tabs}>
+      <View style={styles.tabs} accessibilityLabel="Primary navigation">
         {(["portfolio", "search"] as const).map((item) => (
           <Pressable
+            accessibilityLabel={
+              item === "portfolio" ? "Portfolio" : "Search cards"
+            }
             accessibilityRole="tab"
             accessibilityState={{ selected: tab === item }}
             key={item}
@@ -92,9 +95,15 @@ export default function App() {
             style={[styles.tab, tab === item && styles.activeTab]}
           >
             <Text
+              aria-hidden
+              style={[styles.tabMark, tab === item && styles.activeTabMark]}
+            >
+              {item === "portfolio" ? "P" : "S"}
+            </Text>
+            <Text
               style={[styles.tabText, tab === item && styles.activeTabText]}
             >
-              {item === "portfolio" ? "Portfolio" : "Search"}
+              {item === "portfolio" ? "Portfolio" : "Search cards"}
             </Text>
           </Pressable>
         ))}
@@ -103,7 +112,13 @@ export default function App() {
   );
 }
 
-function PortfolioScreen({ session }: { session: MobileSession }) {
+function PortfolioScreen({
+  session,
+  onSearch,
+}: {
+  session: MobileSession;
+  onSearch: () => void;
+}) {
   const [portfolio, setPortfolio] = useState<Portfolio | null>(null);
   const [error, setError] = useState("");
 
@@ -129,12 +144,28 @@ function PortfolioScreen({ session }: { session: MobileSession }) {
           {signedMoney(portfolio.gainLossCents)} unrealized
         </Text>
       </View>
+      <PortfolioHistory snapshots={portfolio.snapshots} />
       <View style={styles.statRow}>
         <Stat label="Cost basis" value={money(portfolio.costBasisCents)} />
         <Stat label="Priced" value={`${portfolio.valuedItems}`} />
         <Stat label="Unpriced" value={`${portfolio.unpricedItems}`} />
       </View>
-      <Text style={styles.sectionTitle}>Holdings</Text>
+      <Pressable
+        accessibilityRole="button"
+        onPress={onSearch}
+        style={styles.findCardsButton}
+      >
+        <Text style={styles.findCardsText}>Search for cards</Text>
+        <Text style={styles.findCardsArrow} aria-hidden>
+          →
+        </Text>
+      </Pressable>
+      <View style={styles.sectionHeading}>
+        <Text style={styles.sectionTitle}>Holdings</Text>
+        <Text style={styles.mutedSmall}>
+          {portfolio.lines.length} item{portfolio.lines.length === 1 ? "" : "s"}
+        </Text>
+      </View>
       {portfolio.lines.map((line) => (
         <View style={styles.holding} key={line.lot.id}>
           <Image
@@ -149,12 +180,70 @@ function PortfolioScreen({ session }: { session: MobileSession }) {
           </View>
           <Text style={styles.holdingValue}>
             {line.marketValueCents === null
-              ? "Unpriced"
+              ? "Unpriced · check freshness"
               : money(line.marketValueCents)}
           </Text>
         </View>
       ))}
     </ScrollView>
+  );
+}
+
+function PortfolioHistory({
+  snapshots,
+}: {
+  snapshots: Portfolio["snapshots"];
+}) {
+  if (snapshots.length < 2) {
+    return (
+      <View style={styles.historyCard}>
+        <Text style={styles.historyTitle}>Value history</Text>
+        <Text style={styles.mutedSmall}>
+          Available after two daily snapshots.
+        </Text>
+      </View>
+    );
+  }
+
+  const values = snapshots.map((snapshot) => snapshot.marketValueCents);
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const range = Math.max(1, max - min);
+  const latest = snapshots.at(-1);
+
+  return (
+    <View
+      accessible
+      accessibilityLabel={`Portfolio value changed from ${money(values[0] ?? 0)} to ${money(values.at(-1) ?? 0)} across ${snapshots.length} daily snapshots`}
+      style={styles.historyCard}
+    >
+      <View style={styles.historyHeading}>
+        <View>
+          <Text style={styles.valueLabel}>VALUE HISTORY</Text>
+          <Text style={styles.historyTitle}>Portfolio movement</Text>
+        </View>
+        {latest && (
+          <View style={styles.historyLatest}>
+            <Text style={styles.mutedSmall}>Latest snapshot</Text>
+            <Text style={styles.historyLatestValue}>
+              {shortDate(latest.date)} · {money(latest.marketValueCents)}
+            </Text>
+          </View>
+        )}
+      </View>
+      <View style={styles.historyPlot} aria-hidden>
+        {values.map((value, index) => (
+          <View
+            key={`${snapshots[index]?.date}-${index}`}
+            style={[
+              styles.historyBar,
+              { height: 18 + ((value - min) / range) * 66 },
+            ]}
+          />
+        ))}
+      </View>
+      <View style={styles.historyBaseline} />
+    </View>
   );
 }
 
@@ -175,7 +264,7 @@ function SearchScreen({ session }: { session: MobileSession }) {
   }
 
   return (
-    <View style={styles.content}>
+    <View style={[styles.content, styles.flex]}>
       <Text style={styles.eyebrow}>UNIFIED CATALOG</Text>
       <Text style={styles.title}>Find the exact card.</Text>
       <View style={styles.searchRow}>
@@ -254,6 +343,13 @@ function signedMoney(cents: number): string {
   return `${cents >= 0 ? "+" : "−"}${money(Math.abs(cents))}`;
 }
 
+function shortDate(date: string): string {
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+  }).format(new Date(`${date}T00:00:00`));
+}
+
 const styles = StyleSheet.create({
   app: { backgroundColor: "#0b0d10", flex: 1 },
   center: {
@@ -315,7 +411,7 @@ const styles = StyleSheet.create({
   },
   wordmark: { color: "#f6f7f9", fontSize: 18, fontWeight: "900" },
   signOut: { color: "#98a3af", fontSize: 13 },
-  content: { flex: 1, padding: 20, paddingBottom: 100 },
+  content: { flexGrow: 1, padding: 20, paddingBottom: 24 },
   eyebrow: {
     color: "#a7f46b",
     fontSize: 11,
@@ -353,6 +449,48 @@ const styles = StyleSheet.create({
   },
   gain: { color: "#78e6a2", fontWeight: "700" },
   loss: { color: "#ff8d8d" },
+  historyCard: {
+    backgroundColor: "#13171c",
+    borderColor: "#29313a",
+    borderRadius: 18,
+    borderWidth: 1,
+    marginTop: 8,
+    padding: 16,
+  },
+  historyHeading: {
+    alignItems: "flex-start",
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  historyTitle: {
+    color: "#f6f7f9",
+    fontSize: 17,
+    fontWeight: "800",
+    marginTop: 5,
+  },
+  historyLatest: { alignItems: "flex-end" },
+  historyLatestValue: {
+    color: "#f6f7f9",
+    fontSize: 12,
+    fontWeight: "700",
+    marginTop: 3,
+  },
+  historyPlot: {
+    alignItems: "flex-end",
+    flexDirection: "row",
+    gap: 4,
+    height: 92,
+    marginTop: 18,
+  },
+  historyBar: {
+    backgroundColor: "#a7f46b",
+    borderRadius: 3,
+    flex: 1,
+    maxWidth: 24,
+    minWidth: 4,
+    opacity: 0.72,
+  },
+  historyBaseline: { backgroundColor: "#29313a", height: 1 },
   statRow: { flexDirection: "row", gap: 8, marginTop: 8 },
   stat: {
     backgroundColor: "#13171c",
@@ -372,9 +510,28 @@ const styles = StyleSheet.create({
     color: "#f6f7f9",
     fontSize: 21,
     fontWeight: "800",
+  },
+  sectionHeading: {
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginBottom: 6,
     marginTop: 30,
   },
+  findCardsButton: {
+    alignItems: "center",
+    backgroundColor: "#1a2027",
+    borderColor: "#29313a",
+    borderRadius: 13,
+    borderWidth: 1,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 12,
+    minHeight: 52,
+    paddingHorizontal: 16,
+  },
+  findCardsText: { color: "#f6f7f9", fontSize: 15, fontWeight: "800" },
+  findCardsArrow: { color: "#a7f46b", fontSize: 20 },
   holding: {
     alignItems: "center",
     borderBottomColor: "#29313a",
@@ -392,15 +549,36 @@ const styles = StyleSheet.create({
     backgroundColor: "#0f1216",
     borderTopColor: "#29313a",
     borderTopWidth: 1,
-    bottom: 0,
     flexDirection: "row",
-    left: 0,
-    padding: 10,
-    position: "absolute",
-    right: 0,
+    gap: 8,
+    paddingHorizontal: 12,
+    paddingTop: 8,
   },
-  tab: { alignItems: "center", borderRadius: 10, flex: 1, padding: 12 },
-  activeTab: { backgroundColor: "#1a2027" },
+  tab: {
+    alignItems: "center",
+    borderColor: "transparent",
+    borderRadius: 12,
+    borderWidth: 1,
+    flex: 1,
+    gap: 3,
+    justifyContent: "center",
+    minHeight: 58,
+    paddingHorizontal: 8,
+    paddingVertical: 7,
+  },
+  activeTab: { backgroundColor: "#1a2027", borderColor: "#29313a" },
+  tabMark: {
+    backgroundColor: "#13171c",
+    borderRadius: 6,
+    color: "#98a3af",
+    fontSize: 10,
+    fontWeight: "900",
+    height: 19,
+    lineHeight: 19,
+    textAlign: "center",
+    width: 19,
+  },
+  activeTabMark: { color: "#a7f46b" },
   tabText: { color: "#98a3af", fontWeight: "700" },
   activeTabText: { color: "#a7f46b" },
   searchRow: { flexDirection: "row", gap: 8 },

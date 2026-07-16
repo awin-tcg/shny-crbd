@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { SiteNavigation } from "../components/site-navigation";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -9,14 +10,6 @@ export const metadata: Metadata = {
   },
   description: "Know what your collection is worth.",
 };
-
-const navigation = [
-  { href: "/", label: "Portfolio" },
-  { href: "/search", label: "Search" },
-  { href: "/trade", label: "Trade" },
-  { href: "/news", label: "News" },
-  { href: "/vendor", label: "Vendor" },
-];
 
 export default function RootLayout({
   children,
@@ -34,13 +27,7 @@ export default function RootLayout({
             </span>
             <span>CRDBRD</span>
           </Link>
-          <nav aria-label="Primary navigation">
-            {navigation.map((item) => (
-              <Link key={item.href} href={item.href}>
-                {item.label}
-              </Link>
-            ))}
-          </nav>
+          <SiteNavigation />
           <div className="profile" aria-label="Signed in as demo collector">
             AN
           </div>

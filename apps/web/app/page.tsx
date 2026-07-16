@@ -36,19 +36,26 @@ export default async function PortfolioPage() {
 
 function Dashboard({ portfolio }: { portfolio: Portfolio }) {
   const gainClass = portfolio.gainLossCents >= 0 ? "positive" : "negative";
+  const firstSnapshot = portfolio.snapshots[0];
+  const latestSnapshot = portfolio.snapshots.at(-1);
+
   return (
     <>
-      <section className="metric-grid panel" aria-label="Portfolio totals">
+      <section
+        className="metric-grid panel"
+        aria-label="Portfolio totals"
+        data-dashboard-section="totals"
+      >
         <Metric
           label="Market value"
           value={money(portfolio.marketValueCents)}
         />
-        <Metric label="Cost basis" value={money(portfolio.costBasisCents)} />
         <Metric
           label="Unrealized gain"
           value={signedMoney(portfolio.gainLossCents)}
           className={gainClass}
         />
+        <Metric label="Cost basis" value={money(portfolio.costBasisCents)} />
         <Metric
           label="Priced cards"
           value={portfolio.valuedItems.toLocaleString("en-US")}
@@ -56,18 +63,44 @@ function Dashboard({ portfolio }: { portfolio: Portfolio }) {
       </section>
 
       <section className="dashboard-grid">
-        <article className="panel chart-panel">
+        <article
+          className="panel chart-panel"
+          data-dashboard-section="chart"
+          aria-labelledby="portfolio-movement-heading"
+        >
           <div className="chart-header">
             <div>
               <p className="eyebrow">Value history</p>
-              <h2>Portfolio movement</h2>
+              <h2 id="portfolio-movement-heading">Portfolio movement</h2>
             </div>
-            <span className="subtle">Daily · USD</span>
+            <span className="chart-period">
+              <span>Daily · USD</span>
+              {latestSnapshot && (
+                <span>
+                  Latest snapshot{" "}
+                  <time dateTime={latestSnapshot.date}>
+                    {shortDate(latestSnapshot.date)}
+                  </time>
+                </span>
+              )}
+            </span>
           </div>
           <PortfolioChart snapshots={portfolio.snapshots} />
+          {firstSnapshot && latestSnapshot && (
+            <div className="chart-caption">
+              <span>
+                Period {shortDate(firstSnapshot.date)}–
+                {shortDate(latestSnapshot.date)}
+              </span>
+              <span>Latest {money(latestSnapshot.marketValueCents)}</span>
+            </div>
+          )}
         </article>
 
-        <aside className="panel summary-panel">
+        <aside
+          className="panel summary-panel"
+          data-dashboard-section="coverage"
+        >
           <p className="eyebrow">Data quality</p>
           <h2>Valuation coverage</h2>
           <ul className="summary-list">
@@ -90,7 +123,10 @@ function Dashboard({ portfolio }: { portfolio: Portfolio }) {
           </ul>
         </aside>
 
-        <article className="panel holdings-panel">
+        <article
+          className="panel holdings-panel"
+          data-dashboard-section="holdings"
+        >
           <div className="section-header">
             <div>
               <p className="eyebrow">Collection</p>
@@ -117,7 +153,9 @@ function Dashboard({ portfolio }: { portfolio: Portfolio }) {
                 </div>
                 <div>
                   <small>Market</small>
-                  <div className="money">
+                  <div
+                    className={`money ${line.marketValueCents === null ? "unpriced" : ""}`}
+                  >
                     {line.marketValueCents === null
                       ? "Unpriced"
                       : money(line.marketValueCents)}
@@ -183,6 +221,13 @@ function money(cents: number): string {
 
 function signedMoney(cents: number): string {
   return `${cents >= 0 ? "+" : "−"}${money(Math.abs(cents))}`;
+}
+
+function shortDate(date: string): string {
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+  }).format(new Date(`${date}T00:00:00`));
 }
 
 async function getPortfolio(): Promise<Portfolio | null> {

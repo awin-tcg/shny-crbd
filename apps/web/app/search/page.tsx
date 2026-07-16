@@ -175,7 +175,9 @@ function CardResult({ card }: { card: Card }) {
           </select>
         </label>
         {selected?.stale && (
-          <p className="subtle">This price is stale and will not be valued.</p>
+          <p className="price-warning" role="note">
+            Stale price · this card will remain unpriced in portfolio totals.
+          </p>
         )}
         <div
           style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}
