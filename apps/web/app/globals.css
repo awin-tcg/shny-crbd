@@ -422,6 +422,328 @@ label {
   line-height: 1.8;
 }
 
+.trade-heading {
+  margin-bottom: 2rem;
+}
+
+.trade-sides {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.trade-side,
+.trade-analysis {
+  padding: 1.4rem;
+}
+
+.trade-side-header,
+.trade-analysis-header,
+.catalog-results-heading {
+  align-items: flex-start;
+  display: flex;
+  justify-content: space-between;
+}
+
+.trade-side-header h2,
+.trade-analysis-header h2 {
+  margin-bottom: 0.25rem;
+}
+
+.item-count {
+  background: var(--panel-raised);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 0.75rem;
+  padding: 0.4rem 0.65rem;
+  white-space: nowrap;
+}
+
+.catalog-picker {
+  border-bottom: 1px solid var(--line);
+  border-top: 1px solid var(--line);
+  margin: 1rem 0;
+  padding: 1rem 0;
+}
+
+.trade-search {
+  align-items: end;
+  display: grid;
+  gap: 0.6rem;
+  grid-template-columns: minmax(0, 1fr) minmax(110px, 0.45fr) auto;
+}
+
+.catalog-results {
+  background: var(--panel-raised);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  margin-top: 0.75rem;
+  max-height: 430px;
+  overflow-y: auto;
+  padding: 0.75rem;
+}
+
+.catalog-results-heading {
+  margin-bottom: 0.4rem;
+}
+
+.catalog-result {
+  align-items: center;
+  border-top: 1px solid var(--line);
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+  padding: 0.75rem 0;
+}
+
+.catalog-result:first-of-type {
+  border-top: 0;
+}
+
+.catalog-result img,
+.trade-item img {
+  background: var(--panel);
+  border-radius: 6px;
+  height: 58px;
+  object-fit: contain;
+  width: 42px;
+}
+
+.catalog-result strong,
+.catalog-result small,
+.trade-item-info small {
+  display: block;
+}
+
+.catalog-result label {
+  margin-top: 0.45rem;
+}
+
+.catalog-result select {
+  min-height: 38px;
+  padding: 0.45rem;
+}
+
+.text-button {
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.78rem;
+  padding: 0.3rem;
+}
+
+.text-button:hover {
+  color: var(--text);
+}
+
+.text-button.danger:hover {
+  color: var(--negative);
+}
+
+.trade-item-list {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.trade-item-list .empty-state {
+  padding: 1.4rem;
+}
+
+.trade-item {
+  align-items: center;
+  background: var(--panel-raised);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: 42px minmax(120px, 1fr) auto auto;
+  padding: 0.75rem;
+}
+
+.trade-item-info {
+  min-width: 0;
+}
+
+.trade-item-info strong,
+.trade-item-info small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.trade-item-info small {
+  color: var(--muted);
+  font-size: 0.72rem;
+  margin-top: 0.14rem;
+}
+
+.price-warning {
+  color: var(--warning) !important;
+}
+
+.quantity-control {
+  color: var(--muted);
+  font-size: 0.68rem;
+  text-align: center;
+}
+
+.quantity-control > div {
+  display: grid;
+  grid-template-columns: 34px 52px 34px;
+  margin-top: 0.3rem;
+}
+
+.quantity-control button,
+.quantity-control input {
+  border-radius: 0;
+  min-height: 36px;
+  padding: 0.3rem;
+  text-align: center;
+}
+
+.quantity-control button:first-child {
+  border-radius: 9px 0 0 9px;
+}
+
+.quantity-control button:last-child {
+  border-radius: 0 9px 9px 0;
+}
+
+.cash-input {
+  margin-top: 1rem;
+}
+
+.cash-input small,
+.percentage-control small {
+  color: var(--muted);
+  font-weight: 450;
+}
+
+input[aria-invalid="true"] {
+  border-color: var(--negative);
+}
+
+.trade-analysis {
+  margin-top: 1rem;
+}
+
+.trade-analysis-header {
+  gap: 2rem;
+  margin-bottom: 1.25rem;
+}
+
+.percentage-control {
+  min-width: min(100%, 390px);
+}
+
+.percentage-control label {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+
+.percentage-control label strong {
+  color: var(--text);
+}
+
+.percentage-control > div {
+  align-items: center;
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: 1fr 82px;
+  margin: 0.4rem 0;
+}
+
+.percentage-control input[type="range"] {
+  accent-color: var(--accent);
+  min-height: 28px;
+  padding: 0;
+}
+
+.percentage-number {
+  text-align: right;
+}
+
+.trade-analysis .notice {
+  margin-bottom: 1rem;
+  padding: 0.85rem 1rem;
+  text-align: left;
+}
+
+.trade-summary-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.trade-summary {
+  background: var(--panel-raised);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 1rem;
+}
+
+.trade-summary h3 {
+  margin-bottom: 0.75rem;
+}
+
+.trade-summary dl {
+  margin: 0 0 0.7rem;
+}
+
+.trade-summary dl div {
+  align-items: center;
+  border-top: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  padding: 0.65rem 0;
+}
+
+.trade-summary dt {
+  color: var(--muted);
+}
+
+.trade-summary dd {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  margin: 0;
+}
+
+.trade-summary .effective-total {
+  color: var(--text);
+  font-size: 1.05rem;
+}
+
+.trade-summary .effective-total dt {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.trade-result {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  display: grid;
+  gap: 0.25rem;
+  margin-top: 1rem;
+  padding: 1rem;
+}
+
+.trade-result span {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.trade-result strong {
+  color: var(--text);
+  font-size: 1.15rem;
+}
+
+.trade-result small {
+  color: var(--muted);
+}
+
 @media (max-width: 800px) {
   .site-header {
     gap: 1rem;
@@ -468,6 +790,46 @@ label {
 
   .search-controls {
     grid-template-columns: 1fr;
+  }
+
+  nav {
+    gap: 0.5rem;
+  }
+
+  nav a {
+    font-size: 0.76rem;
+  }
+
+  .trade-sides,
+  .trade-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .trade-analysis-header {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .trade-search {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .trade-search button {
+    grid-column: 1 / -1;
+  }
+
+  .trade-item {
+    grid-template-columns: 42px minmax(0, 1fr) auto;
+  }
+
+  .trade-item .quantity-control {
+    grid-column: 2;
+    justify-self: start;
+  }
+
+  .trade-item > .text-button {
+    grid-column: 3;
+    grid-row: 1 / span 2;
   }
 }
 

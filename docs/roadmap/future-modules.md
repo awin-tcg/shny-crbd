@@ -1,5 +1,9 @@
 # Future Module Boundaries
 
+## Trade workflow
+
+The current Trade tab is intentionally a local, temporary calculator. Saved drafts, counterparties, offers, acceptance, messaging, portfolio transfers, and transaction history remain future work. Adding any of those capabilities requires owner/counterparty authorization, immutable offer terms, replay protection, expiry and cancellation rules, audit events, and an explicit portfolio-transfer transaction.
+
 ## Vendor workspace
 
 Vendor operations are a separate bounded context and top-level tab, not a mode of the personal portfolio. It will own event inventory, opening stock, acquisitions, sales, payment method, platform/card fees, expenses, cash reconciliation, and realized profit/loss. Transfers between personal and vendor inventory require an explicit, auditable transaction.

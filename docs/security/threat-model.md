@@ -6,7 +6,7 @@ This living model covers browser/mobile clients, the public API, jobs, PostgreSQ
 
 ## Assets
 
-Account identity and sessions; private portfolio and notes; cost basis; audit evidence; OAuth and market-provider secrets; catalog and pricing integrity; API availability and provider credits; deployment and signing credentials.
+Account identity and sessions; private portfolio and notes; cost basis; trade-analysis integrity; audit evidence; OAuth and market-provider secrets; catalog and pricing integrity; API availability and provider credits; deployment and signing credentials.
 
 ## Trust boundaries
 
@@ -33,6 +33,7 @@ flowchart LR
 - **T-01, cross-owner mutation:** object ID is changed to another user's lot. Controls: derive owner from verified principal; owner-scoped queries; centralized policy; foreign keys. Verification: negative tenant-isolation tests for every operation. Risk: Low.
 - **T-02, price manipulation:** provider/cache payload or stale value changes valuation. Controls: strict normalization, source/timestamp provenance, append-only observations, cache schema/version checks, exact variant matching, stale-price exclusion. Verification: malformed payload, downgrade, stale, and variant-confusion tests. Risk: Medium.
 - **T-03, duplicate mutation:** retries create duplicate lots. Controls: owner-scoped idempotency key, request hash, transaction, unique constraint. Verification: concurrent replay tests. Risk: Low.
+- **T-04, misleading trade calculation:** rounding, variant confusion, stale data, or applying a discount to cash misstates a comparison. Controls: shared integer-cent domain math, bounded basis-point adjustment, exact variant selection, visible observation freshness, explicit unpriced counts, and cash excluded from adjustment. The first version is non-authoritative and cannot mutate portfolio data. Verification: focused domain and browser journey tests. Risk: Low.
 
 ### Repudiation
 

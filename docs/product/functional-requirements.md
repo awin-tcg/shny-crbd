@@ -43,6 +43,14 @@ Cardboard helps US collectors find trading cards and track the market value and 
 - FR-033: A daily snapshot records the portfolio aggregate in UTC. At most one current snapshot exists per user and UTC day.
 - FR-034: The chart displays persisted daily snapshots. Backdated lot edits do not rewrite history automatically.
 
+### Trade calculator
+
+- FR-035: A collector can add one or more exact raw-condition or graded variants, quantities, and cash to each side of a temporary trade comparison.
+- FR-036: A collector can adjust the percentage applied to incoming card market value from 0% through 100%. Cash on both sides remains at face value.
+- FR-037: The comparison shows each side's raw card market value, cash, adjusted incoming card value, effective total, dollar and percentage difference, and a plain-language advantage or balanced result.
+- FR-038: Missing and stale prices are labeled, counted, and excluded from priced trade totals. The comparison remains visibly incomplete while any included quantity is unpriced.
+- FR-039: A trade calculation does not persist a draft, create a trade record, or mutate the collector's portfolio.
+
 ### Privacy and lifecycle
 
 - FR-040: Portfolios are private in the MVP. APIs expose no endpoint for viewing another collector's data.
@@ -74,3 +82,4 @@ Cardboard helps US collectors find trading cards and track the market value and 
 3. A collector edits quantity and cost, then sees a new valuation without gaining access to another collector's lot.
 4. A daily snapshot produces chart history and clearly reports stale or missing prices.
 5. Invalid, duplicate, unauthorized, and rate-limited requests return stable problem responses without leaking internal details.
+6. A collector adds exact variants and cash to both sides of a trade, applies an incoming-card percentage, adjusts quantities, and sees transparent totals without changing the portfolio.

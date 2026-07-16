@@ -78,6 +78,12 @@ The development adapter is deterministic and consumes fixtures. A Scrydex adapte
 
 Each acquisition lot points to one market variant. The domain service multiplies exact unit market cents by quantity, sums cost basis, and reports missing/stale lines separately. A daily UTC job stores aggregate snapshots. Historical values are not recomputed implicitly when lots change.
 
+## Trade analysis
+
+The responsive web client exposes trade analysis as a separate top-level workspace. Both sides use the protected catalog search API and retain the selected exact market variant in temporary client state. The shared domain package performs deterministic integer-cent calculations: outgoing cards remain at raw market value, the user-selected basis-point adjustment applies only to incoming cards, and cash remains at face value. Missing or stale prices contribute to unpriced counts but not monetary totals.
+
+The first version has no trade API or persistence model. Reloading or leaving the page discards the calculation, and analysis never invokes portfolio mutation endpoints. Any future saved, shared, or accepted trade workflow requires a separate authorization and lifecycle design.
+
 ## Identity
 
 An `IdentityVerifier` port isolates the API from Clerk, Auth0, or Better Auth. The production implementation must verify issuer, audience, signature, expiry, nonce where applicable, and token type. Web uses secure, HTTP-only, same-site cookies; Expo uses authorization code with S256 PKCE, system browser redirects, universal/app links, and platform secure storage.

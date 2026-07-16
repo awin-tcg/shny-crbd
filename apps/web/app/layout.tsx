@@ -13,6 +13,7 @@ export const metadata: Metadata = {
 const navigation = [
   { href: "/", label: "Portfolio" },
   { href: "/search", label: "Search" },
+  { href: "/trade", label: "Trade" },
   { href: "/news", label: "News" },
   { href: "/vendor", label: "Vendor" },
 ];
