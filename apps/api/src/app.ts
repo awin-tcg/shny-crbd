@@ -13,6 +13,7 @@ import {
   createLotSchema,
   searchQuerySchema,
   updateLotSchema,
+  type Account,
 } from "@cardboard/contracts";
 import { demoUserId } from "@cardboard/test-data";
 import {
@@ -122,6 +123,59 @@ export async function buildApp(
   app.get("/v1/me", { schema: { tags: ["identity"] } }, async (request) => ({
     userId: requirePrincipal(request).userId,
   }));
+
+  const accountFor = (principal: Principal): Account => ({
+    userId: principal.userId,
+    issuer: principal.issuer,
+    sessionManaged: principal.issuer !== "cardboard:mock",
+    lotCount: store.listLots(principal.userId).length,
+    exportRequest: store.getLifecycleRequest(principal.userId, "export"),
+    deletionRequest: store.getLifecycleRequest(principal.userId, "deletion"),
+  });
+
+  app.get("/v1/account", { schema: { tags: ["identity"] } }, async (request) =>
+    accountFor(requirePrincipal(request)),
+  );
+
+  app.post(
+    "/v1/account/export-requests",
+    { schema: { tags: ["identity"] } },
+    async (request, reply) => {
+      const principal = requirePrincipal(request);
+      const { created } = store.requestLifecycle(
+        principal.userId,
+        "export",
+        request.id,
+      );
+      return reply.code(created ? 201 : 200).send(accountFor(principal));
+    },
+  );
+
+  app.post(
+    "/v1/account/deletion-requests",
+    { schema: { tags: ["identity"] } },
+    async (request, reply) => {
+      const principal = requirePrincipal(request);
+      const { created } = store.requestLifecycle(
+        principal.userId,
+        "deletion",
+        request.id,
+      );
+      return reply.code(created ? 201 : 200).send(accountFor(principal));
+    },
+  );
+
+  app.delete(
+    "/v1/account/deletion-requests",
+    { schema: { tags: ["identity"] } },
+    async (request, reply) => {
+      const principal = requirePrincipal(request);
+      if (!store.cancelDeletionRequest(principal.userId, request.id)) {
+        return problem(reply, request, 404, "No pending deletion request");
+      }
+      return accountFor(principal);
+    },
+  );
 
   app.get("/v1/cards", { schema: { tags: ["catalog"] } }, async (request) => {
     const query = searchQuerySchema.parse(request.query);

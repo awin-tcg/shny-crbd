@@ -8,6 +8,8 @@
 
 ### Revision history
 
+- Unreleased (2026-11-02): Added account page requirements (FR-043 through
+  FR-045).
 - `d764a86` (2026-11-02): Added card detail page requirements (FR-015 through
   FR-019) and its acceptance journey.
 - `a42d662` (2026-11-02): Renamed the user-facing product to SHNY CRBD.
@@ -82,6 +84,9 @@ Yu-Gi-Oh! through a provider-neutral catalog.
 
 - FR-040: Portfolios are private in the MVP. APIs expose no endpoint for viewing another collector's data.
 - FR-041: A collector can request an export and account deletion; operational completion may be asynchronous.
+- FR-043: An account page, reached from the header avatar, shows the signed-in collector, identity provider, and lot count, and offers sign-out, export request, deletion request, and a reset of device-only preferences.
+- FR-044: Deletion requires an explicit confirmation step, shows its pending state, and can be cancelled until processed. Repeating an export or deletion request does not create a second request.
+- FR-045: Sign-out is disabled with an explanation while the development identity adapter is active, because it has no session to end.
 - FR-042: Audit events avoid card notes, OAuth tokens, provider secrets, and full upstream payloads.
 
 ## Quality requirements

@@ -33,9 +33,9 @@ export default function RootLayout({
             <span>SHNY CRBD</span>
           </Link>
           <SiteNavigation />
-          <div className="profile" aria-label="Signed in as demo collector">
-            AN
-          </div>
+          <Link className="profile" href="/account" aria-label="Account">
+            <span aria-hidden="true">AN</span>
+          </Link>
         </header>
         <main id="main">{children}</main>
       </body>

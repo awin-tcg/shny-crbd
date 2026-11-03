@@ -155,6 +155,81 @@ describe("Cardboard API", () => {
       }),
     );
   });
+
+  it("records lifecycle requests per account once and audits them", async () => {
+    const store = new InMemoryStore();
+    const instance = await app(store);
+
+    const account = await instance.inject({
+      method: "GET",
+      url: "/v1/account",
+      headers: auth,
+    });
+    expect(account.statusCode).toBe(200);
+    expect(account.json()).toMatchObject({
+      userId: "alice",
+      sessionManaged: false,
+      lotCount: 0,
+      exportRequest: null,
+      deletionRequest: null,
+    });
+
+    const first = await instance.inject({
+      method: "POST",
+      url: "/v1/account/export-requests",
+      headers: auth,
+    });
+    const repeat = await instance.inject({
+      method: "POST",
+      url: "/v1/account/export-requests",
+      headers: auth,
+    });
+    expect(first.statusCode).toBe(201);
+    expect(repeat.statusCode).toBe(200);
+    expect(repeat.json().exportRequest).toEqual(first.json().exportRequest);
+    expect(
+      store.auditEvents.filter(
+        (event) => event.action === "account.export_request",
+      ),
+    ).toHaveLength(1);
+
+    const other = await instance.inject({
+      method: "GET",
+      url: "/v1/account",
+      headers: otherAuth,
+    });
+    expect(other.json().exportRequest).toBeNull();
+  });
+
+  it("lets a collector cancel a pending deletion request", async () => {
+    const instance = await app();
+
+    const missing = await instance.inject({
+      method: "DELETE",
+      url: "/v1/account/deletion-requests",
+      headers: auth,
+    });
+    expect(missing.statusCode).toBe(404);
+
+    const requested = await instance.inject({
+      method: "POST",
+      url: "/v1/account/deletion-requests",
+      headers: auth,
+    });
+    expect(requested.statusCode).toBe(201);
+    expect(requested.json().deletionRequest).toMatchObject({
+      kind: "deletion",
+      status: "requested",
+    });
+
+    const cancelled = await instance.inject({
+      method: "DELETE",
+      url: "/v1/account/deletion-requests",
+      headers: auth,
+    });
+    expect(cancelled.statusCode).toBe(200);
+    expect(cancelled.json().deletionRequest).toBeNull();
+  });
 });
 
 describe("production adapter guards", () => {

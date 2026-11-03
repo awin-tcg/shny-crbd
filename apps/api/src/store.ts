@@ -1,6 +1,7 @@
 import { createHash, randomUUID } from "node:crypto";
 import type {
   CreateLot,
+  LifecycleRequest,
   Lot,
   PortfolioSnapshot,
   UpdateLot,
@@ -12,7 +13,14 @@ interface StoredLot extends Lot {
 
 export interface AuditEvent {
   actorId: string;
-  action: "lot.create" | "lot.update" | "lot.delete" | "snapshot.create";
+  action:
+    | "lot.create"
+    | "lot.update"
+    | "lot.delete"
+    | "snapshot.create"
+    | "account.export_request"
+    | "account.deletion_request"
+    | "account.deletion_cancel";
   resourceId: string;
   result: "success" | "denied";
   requestId: string;
@@ -28,7 +36,60 @@ export class InMemoryStore {
   private readonly lots = new Map<string, StoredLot>();
   private readonly idempotency = new Map<string, IdempotencyRecord>();
   private readonly snapshots = new Map<string, PortfolioSnapshot>();
+  private readonly lifecycleRequests = new Map<string, LifecycleRequest>();
   readonly auditEvents: AuditEvent[] = [];
+
+  getLifecycleRequest(
+    userId: string,
+    kind: LifecycleRequest["kind"],
+  ): LifecycleRequest | null {
+    const request = this.lifecycleRequests.get(`${userId}:${kind}`);
+    return request ? structuredClone(request) : null;
+  }
+
+  /** Records a request once; repeated requests return the original without a new audit event. */
+  requestLifecycle(
+    userId: string,
+    kind: LifecycleRequest["kind"],
+    requestId: string,
+  ): { request: LifecycleRequest; created: boolean } {
+    const key = `${userId}:${kind}`;
+    const existing = this.lifecycleRequests.get(key);
+    if (existing) return { request: structuredClone(existing), created: false };
+    const request: LifecycleRequest = {
+      kind,
+      status: "requested",
+      requestedAt: new Date().toISOString(),
+    };
+    this.lifecycleRequests.set(key, request);
+    this.auditEvents.push({
+      actorId: userId,
+      action:
+        kind === "export"
+          ? "account.export_request"
+          : "account.deletion_request",
+      resourceId: userId,
+      result: "success",
+      requestId,
+      occurredAt: request.requestedAt,
+    });
+    return { request: structuredClone(request), created: true };
+  }
+
+  cancelDeletionRequest(userId: string, requestId: string): boolean {
+    const key = `${userId}:deletion`;
+    if (!this.lifecycleRequests.has(key)) return false;
+    this.lifecycleRequests.delete(key);
+    this.auditEvents.push({
+      actorId: userId,
+      action: "account.deletion_cancel",
+      resourceId: userId,
+      result: "success",
+      requestId,
+      occurredAt: new Date().toISOString(),
+    });
+    return true;
+  }
 
   listLots(userId: string): Lot[] {
     return [...this.lots.values()]

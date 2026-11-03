@@ -117,6 +117,24 @@ export const portfolioSchema = z.object({
 });
 export type Portfolio = z.infer<typeof portfolioSchema>;
 
+export const lifecycleRequestSchema = z.object({
+  kind: z.enum(["export", "deletion"]),
+  status: z.literal("requested"),
+  requestedAt: z.string().datetime(),
+});
+export type LifecycleRequest = z.infer<typeof lifecycleRequestSchema>;
+
+export const accountSchema = z.object({
+  userId: z.string(),
+  issuer: z.string(),
+  /** Whether the active identity adapter supports ending a session. */
+  sessionManaged: z.boolean(),
+  lotCount: z.number().int().nonnegative(),
+  exportRequest: lifecycleRequestSchema.nullable(),
+  deletionRequest: lifecycleRequestSchema.nullable(),
+});
+export type Account = z.infer<typeof accountSchema>;
+
 export const problemSchema = z.object({
   type: z.string(),
   title: z.string(),

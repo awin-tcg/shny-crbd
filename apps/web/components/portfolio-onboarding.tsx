@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from "react";
 
-const preferenceKey = "crdbrd.portfolio-onboarding.dismissed.v1";
+export const onboardingPreferenceKey =
+  "crdbrd.portfolio-onboarding.dismissed.v1";
+const preferenceKey = onboardingPreferenceKey;
 
 const preferenceScript = `
 try {

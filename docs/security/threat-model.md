@@ -10,6 +10,8 @@
 
 ### Revision history
 
+- Unreleased (2026-11-02): Added R-03 covering audited, cancellable export and
+  deletion requests from the account page.
 - `4ad1e16` (2026-07-15): Added trade-analysis integrity as an asset and threat
   T-04 with controls and verification.
 - `6240bb7` (2026-07-15): Established the STRIDE scope, threat register,
@@ -53,6 +55,7 @@ flowchart LR
 ### Repudiation
 
 - **R-01, disputed portfolio change:** actor denies creating or deleting a lot. Controls: privacy-safe audit event with actor, action, resource ID, result, timestamp, and request ID; protected retention. Verification: audit emission tests. Risk: Low.
+- **R-03, disputed lifecycle request:** collector denies asking for a data export or account deletion, or claims a cancelled deletion was never cancelled. Controls: export, deletion, and cancellation each emit an audit event scoped to the owner; repeated requests return the original without a new event; deletion is a two-step confirmation in the UI and remains cancellable until processed. Verification: `app.test.ts` lifecycle tests and `tests/e2e/account.spec.ts`. Risk: Low.
 - **R-02, operator action is unattributed:** privileged change lacks identity. Controls: individual operator accounts, least privilege, platform audit logs, no shared credentials. Verification: quarterly access review. Risk: Medium.
 
 ### Information disclosure
