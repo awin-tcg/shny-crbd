@@ -8,7 +8,7 @@
 
 ### Revision history
 
-- Unreleased (2026-11-02): Added home data view and market ticker requirements
+- `c22664e` (2026-11-02): Added home data view and market ticker requirements
   (FR-046 through FR-048).
 - `5e766ac` (2026-11-02): Added account page requirements (FR-043 through
   FR-045).
