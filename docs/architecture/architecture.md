@@ -8,6 +8,7 @@
 
 ### Revision history
 
+- Renamed the user-facing product to SHNY CRBD (2026-11-02).
 - `e59dee4` (2026-07-15): Renamed the user-facing product to CRDBRD.
 - `4ad1e16` (2026-07-15): Added the temporary, client-side trade-analysis
   design and lifecycle constraints.
@@ -16,7 +17,7 @@
 
 ## Context
 
-CRDBRD is a multi-client portfolio service. Browser and native clients call one
+SHNY CRBD is a multi-client portfolio service. Browser and native clients call one
 versioned API. The API owns authorization and persistence and is the only
 component allowed to call market-data and identity providers with secrets.
 

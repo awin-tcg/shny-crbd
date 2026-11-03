@@ -43,8 +43,8 @@ export default function App() {
     return (
       <SafeAreaView style={styles.login}>
         <StatusBar style="light" />
-        <View style={styles.logo} accessible accessibilityLabel="CRDBRD">
-          <Text style={styles.logoText}>CR</Text>
+        <View style={styles.logo} accessible accessibilityLabel="SHNY CRBD">
+          <Text style={styles.logoText}>SC</Text>
         </View>
         <Text style={styles.hero}>Your collection,{`\n`}in focus.</Text>
         <Text style={styles.muted}>
@@ -69,7 +69,7 @@ export default function App() {
     <SafeAreaView style={styles.app}>
       <StatusBar style="light" />
       <View style={styles.mobileHeader}>
-        <Text style={styles.wordmark}>CRDBRD</Text>
+        <Text style={styles.wordmark}>SHNY CRBD</Text>
         <Pressable
           accessibilityRole="button"
           onPress={() => identity.signOut().then(() => setSession(null))}

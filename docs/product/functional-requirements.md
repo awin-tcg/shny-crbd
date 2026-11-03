@@ -8,6 +8,7 @@
 
 ### Revision history
 
+- Renamed the user-facing product to SHNY CRBD (2026-11-02).
 - `e59dee4` (2026-07-15): Renamed the user-facing product to CRDBRD.
 - `4ad1e16` (2026-07-15): Added temporary trade-calculator requirements and its
   acceptance journey.
@@ -16,7 +17,7 @@
 
 ## Product goal
 
-CRDBRD helps US collectors find trading cards and track the market value and cost
+SHNY CRBD helps US collectors find trading cards and track the market value and cost
 basis of a private collection. The MVP supports Pokémon, One Piece, Gundam, and
 Yu-Gi-Oh! through a provider-neutral catalog.
 

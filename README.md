@@ -1,6 +1,6 @@
-# CRDBRD
+# SHNY CRBD
 
-CRDBRD is a security-first trading-card search and private portfolio valuation
+SHNY CRBD is a security-first trading-card search and private portfolio valuation
 app for web and mobile.
 
 ## Start locally

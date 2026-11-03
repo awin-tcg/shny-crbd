@@ -5,8 +5,8 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "CRDBRD",
-    template: "%s · CRDBRD",
+    default: "SHNY CRBD",
+    template: "%s · SHNY CRBD",
   },
   description: "Know what your collection is worth.",
 };
@@ -21,11 +21,11 @@ export default function RootLayout({
           Skip to content
         </a>
         <header className="site-header">
-          <Link className="brand" href="/" aria-label="CRDBRD home">
+          <Link className="brand" href="/" aria-label="SHNY CRBD home">
             <span className="brand-mark" aria-hidden="true">
-              CR
+              SC
             </span>
-            <span>CRDBRD</span>
+            <span>SHNY CRBD</span>
           </Link>
           <SiteNavigation />
           <div className="profile" aria-label="Signed in as demo collector">
