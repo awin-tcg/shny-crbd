@@ -117,6 +117,31 @@ export const portfolioSchema = z.object({
 });
 export type Portfolio = z.infer<typeof portfolioSchema>;
 
+export const tickerQuoteSchema = z.object({
+  cardId: z.string().uuid(),
+  variantId: z.string().uuid(),
+  name: z.string(),
+  game: gameSchema,
+  descriptor: variantSchema,
+  marketCents: z.number().int().nonnegative(),
+  previousCents: z.number().int().nonnegative(),
+  changeCents: z.number().int(),
+  changeBps: z.number().int().nullable(),
+  currency: z.literal("USD"),
+  observedAt: z.string().datetime(),
+  previousObservedAt: z.string().datetime(),
+  /** Whether the collector holds this exact variant. */
+  owned: z.boolean(),
+});
+export type TickerQuote = z.infer<typeof tickerQuoteSchema>;
+
+export const marketTickerSchema = z.object({
+  /** Mock quotes are indicative fixtures, not live market data. */
+  source: z.enum(["mock", "provider"]),
+  items: z.array(tickerQuoteSchema),
+});
+export type MarketTicker = z.infer<typeof marketTickerSchema>;
+
 export const lifecycleRequestSchema = z.object({
   kind: z.enum(["export", "deletion"]),
   status: z.literal("requested"),

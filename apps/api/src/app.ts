@@ -14,7 +14,9 @@ import {
   searchQuerySchema,
   updateLotSchema,
   type Account,
+  type MarketTicker,
 } from "@cardboard/contracts";
+import { changeBps } from "@cardboard/domain";
 import { demoUserId } from "@cardboard/test-data";
 import {
   createIdentityVerifier,
@@ -195,6 +197,39 @@ export async function buildApp(
       const card = await market.getCard(request.params.id);
       if (!card) return problem(reply, request, 404, "Card not found");
       return card;
+    },
+  );
+
+  app.get(
+    "/v1/market/ticker",
+    { schema: { tags: ["catalog"] } },
+    async (request): Promise<MarketTicker> => {
+      const owned = new Set(
+        store
+          .listLots(requirePrincipal(request).userId)
+          .map((lot) => lot.variantId),
+      );
+      const items = (await market.listDailyQuotes())
+        .map((quote) => ({
+          cardId: quote.card.id,
+          variantId: quote.variant.id,
+          name: quote.card.name,
+          game: quote.card.game,
+          descriptor: quote.variant.descriptor,
+          marketCents: quote.marketCents,
+          previousCents: quote.previousCents,
+          changeCents: quote.marketCents - quote.previousCents,
+          changeBps: changeBps(quote.previousCents, quote.marketCents),
+          currency: quote.variant.currency,
+          observedAt: quote.observedAt,
+          previousObservedAt: quote.previousObservedAt,
+          owned: owned.has(quote.variant.id),
+        }))
+        .sort(
+          (left, right) =>
+            Math.abs(right.changeBps ?? 0) - Math.abs(left.changeBps ?? 0),
+        );
+      return { source: market.source, items };
     },
   );
 

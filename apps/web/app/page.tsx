@@ -1,20 +1,49 @@
-import type { Portfolio } from "@cardboard/contracts";
+import type {
+  MarketTicker as MarketTickerData,
+  Portfolio,
+} from "@cardboard/contracts";
+import {
+  allocate,
+  changeBps,
+  pricedReturn,
+  rankByReturn,
+  ratioBps,
+} from "@cardboard/domain";
 import Link from "next/link";
+import { HomeViewToggle } from "../components/home-view-toggle";
+import { MarketTicker } from "../components/market-ticker";
 import { PortfolioChart } from "../components/portfolio-chart";
 import { PortfolioOnboarding } from "../components/portfolio-onboarding";
+import {
+  gameLabel,
+  money,
+  percent,
+  shortDate,
+  signedMoney,
+  signedPercent,
+  variantLabel,
+} from "../lib/format";
 
 export const dynamic = "force-dynamic";
 
+const baseUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
+
+type PortfolioLine = Portfolio["lines"][number];
+
 export default async function PortfolioPage() {
-  const portfolio = await getPortfolio();
+  const [portfolio, ticker] = await Promise.all([getPortfolio(), getTicker()]);
 
   return (
     <>
+      {ticker && <MarketTicker ticker={ticker} />}
       <section className="portfolio-heading">
         <h1>Portfolio</h1>
-        <Link className="button" href="/search">
-          Add cards
-        </Link>
+        <div className="portfolio-actions">
+          <HomeViewToggle />
+          <Link className="button" href="/search">
+            Add cards
+          </Link>
+        </div>
       </section>
       <PortfolioOnboarding />
 
@@ -64,6 +93,8 @@ function Dashboard({ portfolio }: { portfolio: Portfolio }) {
         />
       </section>
 
+      <Performance portfolio={portfolio} />
+
       <section className="dashboard-grid">
         <article
           className="panel chart-panel"
@@ -98,6 +129,8 @@ function Dashboard({ portfolio }: { portfolio: Portfolio }) {
             </div>
           )}
         </article>
+
+        <Breakdown portfolio={portfolio} />
 
         <article
           className="panel holdings-panel"
@@ -159,12 +192,304 @@ function Dashboard({ portfolio }: { portfolio: Portfolio }) {
                       : signedMoney(line.gainLossCents)}
                   </div>
                 </div>
+                <HoldingDetails
+                  line={line}
+                  portfolioValueCents={portfolio.marketValueCents}
+                />
               </div>
             ))
           )}
         </article>
       </section>
     </>
+  );
+}
+
+function Performance({ portfolio }: { portfolio: Portfolio }) {
+  const priced = pricedReturn(portfolio.lines.map(pricedInput));
+  const ranked = rankByReturn(
+    portfolio.lines.map((line) => ({ ...pricedInput(line), line })),
+  );
+  const best = ranked[0];
+  const worst = ranked.length > 1 ? ranked.at(-1) : undefined;
+  const snapshots = portfolio.snapshots;
+  const first = snapshots[0];
+  const previous = snapshots.at(-2);
+  const latest = snapshots.at(-1);
+
+  return (
+    <section
+      className="metric-grid panel advanced-only"
+      aria-label="Advanced performance"
+      data-dashboard-section="performance"
+    >
+      <Metric
+        label="Return on cost"
+        value={
+          priced.returnBps === null ? "—" : signedPercent(priced.returnBps)
+        }
+        className={priced.gainLossCents >= 0 ? "positive" : "negative"}
+        detail={`Priced lots only · ${signedMoney(priced.gainLossCents)} on ${money(priced.costCents)}`}
+      />
+      <SnapshotChange label="Since first snapshot" from={first} to={latest} />
+      <SnapshotChange
+        label="Since previous snapshot"
+        from={previous}
+        to={latest}
+      />
+      <Metric
+        label="Best performer"
+        value={best ? best.line.card.name : "—"}
+        detail={
+          best
+            ? [
+                `${signedPercent(best.returnBps)} · ${variantLabel(best.line.variant.descriptor)}`,
+                worst
+                  ? `Worst ${worst.line.card.name} ${signedPercent(worst.returnBps)}`
+                  : null,
+              ]
+                .filter(Boolean)
+                .join(" · ")
+            : "Needs a priced holding"
+        }
+      />
+    </section>
+  );
+}
+
+function SnapshotChange({
+  label,
+  from,
+  to,
+}: {
+  label: string;
+  from: Portfolio["snapshots"][number] | undefined;
+  to: Portfolio["snapshots"][number] | undefined;
+}) {
+  if (!from || !to || from === to) {
+    return <Metric label={label} value="—" detail="Needs two snapshots" />;
+  }
+  const delta = to.marketValueCents - from.marketValueCents;
+  const bps = changeBps(from.marketValueCents, to.marketValueCents);
+  return (
+    <Metric
+      label={label}
+      value={signedMoney(delta)}
+      className={delta >= 0 ? "positive" : "negative"}
+      detail={`${bps === null ? "—" : signedPercent(bps)} · ${shortDate(from.date)} to ${shortDate(to.date)} · includes lot changes`}
+    />
+  );
+}
+
+function Breakdown({ portfolio }: { portfolio: Portfolio }) {
+  const byGame = allocate(
+    portfolio.lines.map((line) => ({
+      group: gameLabel(line.card.game),
+      marketValueCents: line.marketValueCents,
+    })),
+  );
+  const byKind = allocate(
+    portfolio.lines.map((line) => ({
+      group: line.variant.descriptor.kind === "raw" ? "Raw" : "Graded",
+      marketValueCents: line.marketValueCents,
+    })),
+  );
+  const missingLines = portfolio.lines.filter(
+    (line) => line.variant.marketCents === null,
+  );
+  const staleLines = portfolio.lines.filter(
+    (line) => line.variant.marketCents !== null && line.variant.stale,
+  );
+  const quantity = (lines: PortfolioLine[]) =>
+    lines.reduce((total, line) => total + line.lot.quantity, 0);
+  const observed = portfolio.lines
+    .filter((line) => line.marketValueCents !== null)
+    .map((line) => line.variant.observedAt)
+    .filter((date): date is string => date !== null)
+    .sort();
+  const excluded = [...missingLines, ...staleLines];
+
+  return (
+    <div
+      className="breakdown-grid advanced-only"
+      data-dashboard-section="breakdown"
+    >
+      <article
+        className="panel summary-panel"
+        aria-labelledby="allocation-heading"
+      >
+        <p className="eyebrow">Allocation</p>
+        <h2 id="allocation-heading">Where the value sits</h2>
+        <AllocationBars label="By game" slices={byGame} />
+        <AllocationBars label="Raw vs graded" slices={byKind} />
+        <p className="subtle allocation-note">
+          Share of priced market value. Unpriced lots are not allocated.
+        </p>
+      </article>
+      <article
+        className="panel summary-panel"
+        aria-labelledby="freshness-heading"
+      >
+        <p className="eyebrow">Coverage</p>
+        <h2 id="freshness-heading">Price freshness</h2>
+        <ul className="summary-list">
+          <li>
+            <span>Priced cards</span>
+            <strong>
+              {portfolio.valuedItems.toLocaleString("en-US")} of{" "}
+              {(portfolio.valuedItems + portfolio.unpricedItems).toLocaleString(
+                "en-US",
+              )}
+            </strong>
+          </li>
+          <li>
+            <span>Missing price</span>
+            <strong>{quantity(missingLines).toLocaleString("en-US")}</strong>
+          </li>
+          <li>
+            <span>Stale price</span>
+            <strong>{quantity(staleLines).toLocaleString("en-US")}</strong>
+          </li>
+          <li>
+            <span>Price observations</span>
+            <strong>
+              {observed.length === 0 ? (
+                "None"
+              ) : observed[0]!.slice(0, 10) ===
+                observed.at(-1)!.slice(0, 10) ? (
+                <time dateTime={observed[0]}>{shortDate(observed[0]!)}</time>
+              ) : (
+                <>
+                  <time dateTime={observed[0]}>{shortDate(observed[0]!)}</time>–
+                  <time dateTime={observed.at(-1)}>
+                    {shortDate(observed.at(-1)!)}
+                  </time>
+                </>
+              )}
+            </strong>
+          </li>
+        </ul>
+        {excluded.length > 0 && (
+          <ul className="excluded-list" aria-label="Excluded from totals">
+            {excluded.map((line) => (
+              <li key={line.lot.id}>
+                <Link href={`/cards/${line.card.id}`}>{line.card.name}</Link>
+                <span className="subtle">
+                  {variantLabel(line.variant.descriptor)} · Qty{" "}
+                  {line.lot.quantity}
+                </span>
+                {line.variant.marketCents === null ? (
+                  <span className="pill pill-warning">Unpriced</span>
+                ) : (
+                  <span className="pill pill-warning">
+                    Stale
+                    {line.variant.observedAt &&
+                      ` · ${shortDate(line.variant.observedAt)}`}
+                  </span>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+      </article>
+    </div>
+  );
+}
+
+function AllocationBars({
+  label,
+  slices,
+}: {
+  label: string;
+  slices: ReturnType<typeof allocate>;
+}) {
+  return (
+    <div className="allocation">
+      <h3>{label}</h3>
+      {slices.length === 0 ? (
+        <p className="subtle">No priced holdings yet.</p>
+      ) : (
+        <ul>
+          {slices.map((slice) => (
+            <li key={slice.group}>
+              <span>{slice.group}</span>
+              <span className="money">{money(slice.marketValueCents)}</span>
+              <span className="allocation-share">
+                {percent(slice.shareBps)}
+              </span>
+              <span className="allocation-bar" aria-hidden="true">
+                <span style={{ width: `${slice.shareBps / 100}%` }} />
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+function HoldingDetails({
+  line,
+  portfolioValueCents,
+}: {
+  line: PortfolioLine;
+  portfolioValueCents: number;
+}) {
+  const returnBps =
+    line.gainLossCents === null
+      ? null
+      : ratioBps(line.gainLossCents, line.lot.totalCostCents);
+  const shareBps =
+    line.marketValueCents === null
+      ? null
+      : ratioBps(line.marketValueCents, portfolioValueCents);
+  const unitCostCents = Math.round(line.lot.totalCostCents / line.lot.quantity);
+  const priced = line.marketValueCents !== null;
+
+  return (
+    <div className="holding-details advanced-only">
+      <div>
+        <small>Return</small>
+        <div
+          className={`money ${returnBps === null ? "" : returnBps >= 0 ? "positive" : "negative"}`}
+        >
+          {returnBps === null ? "—" : signedPercent(returnBps)}
+        </div>
+      </div>
+      <div>
+        <small>Unit cost</small>
+        <div className="money">{money(unitCostCents)}</div>
+      </div>
+      <div>
+        <small>Unit market</small>
+        <div className={`money ${priced ? "" : "unpriced"}`}>
+          {line.variant.marketCents === null
+            ? "—"
+            : money(line.variant.marketCents)}
+        </div>
+      </div>
+      <div>
+        <small>Share</small>
+        <div className="money">
+          {shareBps === null ? "—" : percent(shareBps)}
+        </div>
+      </div>
+      <div>
+        <small>Price date</small>
+        <div className={`money ${line.variant.stale ? "unpriced" : ""}`}>
+          {line.variant.observedAt === null ? (
+            "None"
+          ) : (
+            <>
+              {line.variant.stale && "Stale · "}
+              <time dateTime={line.variant.observedAt}>
+                {shortDate(line.variant.observedAt)}
+              </time>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -188,44 +513,29 @@ function Metric({
   );
 }
 
-function variantLabel(
-  descriptor:
-    | { kind: "raw"; condition: string }
-    | { kind: "graded"; grader: string; grade: string },
-): string {
-  return descriptor.kind === "raw"
-    ? descriptor.condition.replaceAll("_", " ")
-    : `${descriptor.grader} ${descriptor.grade}`;
-}
-
-function money(cents: number): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(cents / 100);
-}
-
-function signedMoney(cents: number): string {
-  return `${cents >= 0 ? "+" : "−"}${money(Math.abs(cents))}`;
-}
-
-function shortDate(date: string): string {
-  return new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
-  }).format(new Date(`${date}T00:00:00`));
+function pricedInput(line: PortfolioLine) {
+  return {
+    costCents: line.lot.totalCostCents,
+    marketValueCents: line.marketValueCents,
+  };
 }
 
 async function getPortfolio(): Promise<Portfolio | null> {
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
+  return getJson<Portfolio>("/v1/portfolio");
+}
+
+async function getTicker(): Promise<MarketTickerData | null> {
+  return getJson<MarketTickerData>("/v1/market/ticker");
+}
+
+async function getJson<T>(path: string): Promise<T | null> {
   try {
-    const response = await fetch(`${baseUrl}/v1/portfolio`, {
+    const response = await fetch(`${baseUrl}${path}`, {
       cache: "no-store",
       headers: { "x-mock-user-id": "demo-user" },
     });
     if (!response.ok) return null;
-    return (await response.json()) as Portfolio;
+    return (await response.json()) as T;
   } catch {
     return null;
   }

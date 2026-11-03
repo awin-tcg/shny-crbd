@@ -97,5 +97,28 @@ export const cards: Card[] = [
   },
 ];
 
+/** Prior daily observations keyed by variant id, for indicative 1D change. */
+export const previousObservations: Record<
+  string,
+  { marketCents: number; observedAt: string }
+> = {
+  "11111111-1111-4111-8111-111111111112": {
+    marketCents: 41_400,
+    observedAt: "2026-07-14T12:00:00.000Z",
+  },
+  "11111111-1111-4111-8111-111111111113": {
+    marketCents: 1_192_000,
+    observedAt: "2026-07-14T12:00:00.000Z",
+  },
+  "22222222-2222-4222-8222-222222222222": {
+    marketCents: 9_350,
+    observedAt: "2026-07-14T12:00:00.000Z",
+  },
+  "44444444-4444-4444-8444-444444444442": {
+    marketCents: 73_100,
+    observedAt: "2026-07-14T12:00:00.000Z",
+  },
+};
+
 export const demoUserId = "demo-user";
 export const secondUserId = "other-user";

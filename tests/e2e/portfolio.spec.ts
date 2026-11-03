@@ -9,8 +9,9 @@ test("collector sees portfolio value and exact-variant holdings", async ({
     page.getByRole("heading", { name: "Know what you hold." }),
   ).toBeVisible();
   await expect(page.getByText("Market value").first()).toBeVisible();
-  await expect(page.getByText("Charizard")).toBeVisible();
-  await expect(page.getByText(/near mint/i)).toBeVisible();
+  const holdings = page.locator('[data-dashboard-section="holdings"]');
+  await expect(holdings.getByText("Charizard").first()).toBeVisible();
+  await expect(holdings.getByText(/near mint/i).first()).toBeVisible();
 });
 
 test("portfolio introduction dismisses and stays dismissed", async ({
@@ -91,7 +92,7 @@ test("dashboard presents totals and chart before secondary details", async ({
   await page.goto("/");
 
   const sectionOrder = await page
-    .locator("[data-dashboard-section]")
+    .locator("[data-dashboard-section]:visible")
     .evaluateAll((sections) =>
       sections.map((section) => section.getAttribute("data-dashboard-section")),
     );

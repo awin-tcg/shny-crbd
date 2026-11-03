@@ -35,6 +35,14 @@ export function signedMoney(cents: number): string {
   return `${cents >= 0 ? "+" : "−"}${money(Math.abs(cents))}`;
 }
 
+export function percent(bps: number): string {
+  return `${(Math.abs(bps) / 100).toFixed(1)}%`;
+}
+
+export function signedPercent(bps: number): string {
+  return `${bps >= 0 ? "+" : "−"}${percent(bps)}`;
+}
+
 export function shortDate(date: string): string {
   return new Intl.DateTimeFormat("en-US", {
     month: "short",

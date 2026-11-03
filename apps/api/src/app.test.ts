@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
+import { marketTickerSchema } from "@cardboard/contracts";
 import { buildApp } from "./app.js";
 import { createIdentityVerifier } from "./auth.js";
 import { InMemoryStore } from "./store.js";
@@ -83,6 +84,64 @@ describe("Cardboard API", () => {
       costBasisCents: 60_000,
       gainLossCents: 25_000,
     });
+  });
+
+  it("serves an indicative daily ticker of priced variants", async () => {
+    const instance = await app();
+    await instance.inject({
+      method: "POST",
+      url: "/v1/lots",
+      headers: { ...auth, "idempotency-key": "ticker-lot-0001" },
+      payload: {
+        cardId,
+        variantId,
+        quantity: 1,
+        purchaseDate: "2026-07-15",
+        totalCostCents: 30_000,
+      },
+    });
+
+    const response = await instance.inject({
+      method: "GET",
+      url: "/v1/market/ticker",
+      headers: auth,
+    });
+    const other = await instance.inject({
+      method: "GET",
+      url: "/v1/market/ticker",
+      headers: otherAuth,
+    });
+    const unauthenticated = await instance.inject({
+      method: "GET",
+      url: "/v1/market/ticker",
+    });
+
+    expect(response.statusCode).toBe(200);
+    const ticker = marketTickerSchema.parse(response.json());
+    expect(ticker.source).toBe("mock");
+    expect(ticker.items.map((item) => item.changeBps)).toEqual([
+      481, 266, -150, -143,
+    ]);
+    expect(ticker.items.some((item) => item.name === "RX-78-2 Gundam")).toBe(
+      false,
+    );
+    expect(
+      ticker.items.find((item) => item.variantId === variantId),
+    ).toMatchObject({
+      marketCents: 42_500,
+      previousCents: 41_400,
+      changeCents: 1_100,
+      observedAt: "2026-07-15T12:00:00.000Z",
+      previousObservedAt: "2026-07-14T12:00:00.000Z",
+      owned: true,
+    });
+    expect(
+      ticker.items.filter((item) => item.owned).map((item) => item.variantId),
+    ).toEqual([variantId]);
+    expect(
+      other.json().items.some((item: { owned: boolean }) => item.owned),
+    ).toBe(false);
+    expect(unauthenticated.statusCode).toBe(401);
   });
 
   it("rejects reuse of an idempotency key with a changed body", async () => {

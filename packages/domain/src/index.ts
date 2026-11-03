@@ -77,4 +77,5 @@ function assertSafeInteger(value: number, label: string): void {
     throw new RangeError(`${label} must be a safe integer`);
 }
 
+export * from "./analytics.js";
 export * from "./trade.js";

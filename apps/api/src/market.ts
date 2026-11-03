@@ -1,5 +1,8 @@
 import type { Card, Game } from "@cardboard/contracts";
-import { cards as fixtureCards } from "@cardboard/test-data";
+import {
+  cards as fixtureCards,
+  previousObservations,
+} from "@cardboard/test-data";
 
 export interface CardSearch {
   query: string;
@@ -7,12 +10,52 @@ export interface CardSearch {
   limit: number;
 }
 
+export interface DailyQuote {
+  card: Card;
+  variant: Card["variants"][number];
+  marketCents: number;
+  observedAt: string;
+  previousCents: number;
+  previousObservedAt: string;
+}
+
 export interface MarketDataProvider {
+  readonly source: "mock" | "provider";
   search(input: CardSearch): Promise<Card[]>;
   getCard(id: string): Promise<Card | null>;
+  /** Current, non-stale variant prices that have a prior daily observation. */
+  listDailyQuotes(): Promise<DailyQuote[]>;
 }
 
 export class MockMarketDataProvider implements MarketDataProvider {
+  readonly source = "mock";
+
+  async listDailyQuotes(): Promise<DailyQuote[]> {
+    return fixtureCards.flatMap((card) =>
+      card.variants.flatMap((variant) => {
+        const previous = previousObservations[variant.id];
+        if (
+          !previous ||
+          variant.marketCents === null ||
+          variant.observedAt === null ||
+          variant.stale
+        ) {
+          return [];
+        }
+        return [
+          {
+            card: structuredClone(card),
+            variant: structuredClone(variant),
+            marketCents: variant.marketCents,
+            observedAt: variant.observedAt,
+            previousCents: previous.marketCents,
+            previousObservedAt: previous.observedAt,
+          },
+        ];
+      }),
+    );
+  }
+
   async search(input: CardSearch): Promise<Card[]> {
     const terms = normalize(input.query).split(/\s+/).filter(Boolean);
     return fixtureCards
@@ -34,6 +77,14 @@ export class MockMarketDataProvider implements MarketDataProvider {
 }
 
 export class ScrydexMarketDataProvider implements MarketDataProvider {
+  readonly source = "provider";
+
+  async listDailyQuotes(): Promise<DailyQuote[]> {
+    throw new Error(
+      "Scrydex is gated pending API contract and redistribution approval",
+    );
+  }
+
   async search(_input: CardSearch): Promise<Card[]> {
     throw new Error(
       "Scrydex is gated pending API contract and redistribution approval",

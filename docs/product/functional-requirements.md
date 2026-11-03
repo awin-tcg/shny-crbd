@@ -8,6 +8,8 @@
 
 ### Revision history
 
+- Unreleased (2026-11-02): Added home data view and market ticker requirements
+  (FR-046 through FR-048).
 - `5e766ac` (2026-11-02): Added account page requirements (FR-043 through
   FR-045).
 - `d764a86` (2026-11-02): Added card detail page requirements (FR-015 through
@@ -71,6 +73,9 @@ Yu-Gi-Oh! through a provider-neutral catalog.
 - FR-032: The dashboard shows current market value, cost basis, unrealized gain/loss, valued item count, and unpriced item count.
 - FR-033: A daily snapshot records the portfolio aggregate in UTC. At most one current snapshot exists per user and UTC day.
 - FR-034: The chart displays persisted daily snapshots. Backdated lot edits do not rewrite history automatically.
+- FR-046: The portfolio home offers a Simple and Advanced data view toggle. Simple is the default and shows totals, the value chart, and holdings. The choice persists on the device and is applied before first paint.
+- FR-047: The Advanced view adds return on priced cost, value change since the first and previous snapshots, best and worst performers, allocation by game and by raw versus graded, price freshness (missing and stale counts, observation dates, and the holdings excluded from totals), and per-holding return, unit cost, unit market, share of portfolio, and price date. Every figure is computed in integer cents from priced, non-stale values only.
+- FR-048: The portfolio home shows a scrolling market ticker of exact-variant prices with their one-day change. Items link to card detail, mark variants the collector owns, and show observation dates; quotes are labelled indicative while the mock market adapter is active. The ticker pauses on hover, stops while a ticker link has keyboard focus, and is a static scrollable row when reduced motion is requested.
 
 ### Trade calculator
 
