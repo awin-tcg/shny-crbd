@@ -8,6 +8,8 @@
 
 ### Revision history
 
+- `aaab138` (2026-11-02): Added card detail page requirements (FR-015 through
+  FR-019) and its acceptance journey.
 - `a42d662` (2026-11-02): Renamed the user-facing product to SHNY CRBD.
 - `e59dee4` (2026-07-15): Renamed the user-facing product to CRDBRD.
 - `4ad1e16` (2026-07-15): Added temporary trade-calculator requirements and its
@@ -42,6 +44,14 @@ Yu-Gi-Oh! through a provider-neutral catalog.
 - FR-011: Search results show the card image, game, set, number, and available raw or graded variants.
 - FR-012: Empty, unavailable, stale, and rate-limited states are distinguishable.
 - FR-013: Upstream credentials and raw provider responses are never sent to a client.
+
+### Card detail
+
+- FR-015: Every search result and portfolio holding links to a card detail page addressed by the card's stable identifier. Unknown or malformed identifiers return a not-found page.
+- FR-016: The card detail page shows the card image and facts (game, set, number, rarity, language) and groups market data into Overview, Raw, Graded, Solds, and Listings views that are keyboard operable and announced as tabs.
+- FR-017: Raw and graded views list each exact variant with its market value, observation date, and a Current, Stale, or Unpriced status. Stale and unpriced variants are never summed into a headline figure.
+- FR-018: Views whose data source is not connected (recent sales, live listings) say so explicitly instead of showing placeholder numbers.
+- FR-019: A collector can add a lot directly from the card detail page, and the page shows the collector's own quantity, market value, cost basis, and lots for that card when any exist.
 
 ### Portfolio
 
@@ -100,3 +110,4 @@ Yu-Gi-Oh! through a provider-neutral catalog.
 4. A daily snapshot produces chart history and clearly reports stale or missing prices.
 5. Invalid, duplicate, unauthorized, and rate-limited requests return stable problem responses without leaking internal details.
 6. A collector adds exact variants and cash to both sides of a trade, applies an incoming-card percentage, adjusts quantities, and sees transparent totals without changing the portfolio.
+7. A collector opens a card from search or a holding, moves between the Overview, Raw, and Graded views by keyboard, sees that sales and listings are not yet connected, and adds a graded lot that then appears under "You own".

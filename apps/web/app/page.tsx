@@ -140,7 +140,11 @@ function Dashboard({ portfolio }: { portfolio: Portfolio }) {
                 {/* External catalog artwork is display-only and provider-attributed. */}
                 <img src={line.card.imageUrl} alt="" />
                 <div>
-                  <div className="holding-name">{line.card.name}</div>
+                  <div className="holding-name">
+                    <Link href={`/cards/${line.card.id}`}>
+                      {line.card.name}
+                    </Link>
+                  </div>
                   <small>
                     {line.card.setName} ·{" "}
                     {variantLabel(line.variant.descriptor)} · Qty{" "}

@@ -1,8 +1,9 @@
 "use client";
 
 import type { Card, Game } from "@cardboard/contracts";
+import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
+import { AddLotForm } from "../../components/add-lot-form";
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
 
@@ -100,134 +101,23 @@ export default function SearchPage() {
 }
 
 function CardResult({ card }: { card: Card }) {
-  const router = useRouter();
-  const [variantId, setVariantId] = useState(card.variants[0]?.id ?? "");
-  const [quantity, setQuantity] = useState("1");
-  const [cost, setCost] = useState("");
-  const [status, setStatus] = useState("");
-  const [saving, setSaving] = useState(false);
-
-  async function addCard() {
-    const parsedQuantity = Number(quantity);
-    const dollars = Number(cost);
-    if (
-      !variantId ||
-      !Number.isInteger(parsedQuantity) ||
-      parsedQuantity < 1 ||
-      !Number.isFinite(dollars) ||
-      dollars < 0
-    ) {
-      setStatus("Enter a valid quantity and total cost.");
-      return;
-    }
-    setSaving(true);
-    setStatus("Adding…");
-    try {
-      const response = await fetch(`${apiUrl}/v1/lots`, {
-        method: "POST",
-        headers: {
-          "content-type": "application/json",
-          "idempotency-key": crypto.randomUUID(),
-          "x-mock-user-id": "demo-user",
-        },
-        body: JSON.stringify({
-          cardId: card.id,
-          variantId,
-          quantity: parsedQuantity,
-          purchaseDate: new Date().toISOString().slice(0, 10),
-          totalCostCents: Math.round(dollars * 100),
-        }),
-      });
-      if (!response.ok) throw new Error("Could not add card");
-      setStatus("Added to your portfolio.");
-      router.refresh();
-    } catch {
-      setStatus("Could not add this card. Try again.");
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  const selected = card.variants.find((variant) => variant.id === variantId);
-
   return (
     <article className="panel card-result">
-      <img src={card.imageUrl} alt={`${card.name} card`} />
+      <Link href={`/cards/${card.id}`} aria-label={`View ${card.name} details`}>
+        <img src={card.imageUrl} alt="" />
+      </Link>
       <div>
-        <h2>{card.name}</h2>
+        <h2>
+          <Link href={`/cards/${card.id}`}>{card.name}</Link>
+        </h2>
         <div className="subtle">
           {card.setName} · {card.number}
         </div>
-        <label>
-          Variant
-          <select
-            value={variantId}
-            onChange={(event) => setVariantId(event.target.value)}
-          >
-            {card.variants.map((variant) => (
-              <option value={variant.id} key={variant.id}>
-                {variantLabel(variant.descriptor)} ·{" "}
-                {variant.marketCents === null
-                  ? "Unpriced"
-                  : money(variant.marketCents)}
-              </option>
-            ))}
-          </select>
-        </label>
-        {selected?.stale && (
-          <p className="price-warning" role="note">
-            Stale price · this card will remain unpriced in portfolio totals.
-          </p>
-        )}
-        <div
-          style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}
-        >
-          <label>
-            Quantity
-            <input
-              inputMode="numeric"
-              min="1"
-              type="number"
-              value={quantity}
-              onChange={(event) => setQuantity(event.target.value)}
-            />
-          </label>
-          <label>
-            Total cost (USD)
-            <input
-              inputMode="decimal"
-              min="0"
-              step="0.01"
-              type="number"
-              placeholder="0.00"
-              value={cost}
-              onChange={(event) => setCost(event.target.value)}
-            />
-          </label>
-        </div>
-        <button onClick={addCard} disabled={saving || !variantId} type="button">
-          {saving ? "Adding…" : "Add to portfolio"}
-        </button>
-        <p className="subtle" role="status" aria-live="polite">
-          {status}
-        </p>
+        <AddLotForm card={card} />
+        <Link className="detail-link" href={`/cards/${card.id}`}>
+          View market data →
+        </Link>
       </div>
     </article>
   );
-}
-
-function variantLabel(
-  descriptor: Card["variants"][number]["descriptor"],
-): string {
-  return descriptor.kind === "raw"
-    ? descriptor.condition.replaceAll("_", " ")
-    : `${descriptor.grader} ${descriptor.grade}`;
-}
-
-function money(cents: number): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(cents / 100);
 }
