@@ -8,7 +8,7 @@
 
 ### Revision history
 
-- `aaab138` (2026-11-02): Added card detail page requirements (FR-015 through
+- `d764a86` (2026-11-02): Added card detail page requirements (FR-015 through
   FR-019) and its acceptance journey.
 - `a42d662` (2026-11-02): Renamed the user-facing product to SHNY CRBD.
 - `e59dee4` (2026-07-15): Renamed the user-facing product to CRDBRD.
