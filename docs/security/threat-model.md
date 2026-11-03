@@ -10,7 +10,7 @@
 
 ### Revision history
 
-- Unreleased (2026-11-02): Added R-03 covering audited, cancellable export and
+- `5e766ac` (2026-11-02): Added R-03 covering audited, cancellable export and
   deletion requests from the account page.
 - `4ad1e16` (2026-07-15): Added trade-analysis integrity as an asset and threat
   T-04 with controls and verification.

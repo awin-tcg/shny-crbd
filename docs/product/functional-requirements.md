@@ -8,7 +8,7 @@
 
 ### Revision history
 
-- Unreleased (2026-11-02): Added account page requirements (FR-043 through
+- `5e766ac` (2026-11-02): Added account page requirements (FR-043 through
   FR-045).
 - `d764a86` (2026-11-02): Added card detail page requirements (FR-015 through
   FR-019) and its acceptance journey.
