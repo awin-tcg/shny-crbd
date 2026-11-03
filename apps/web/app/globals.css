@@ -123,15 +123,11 @@ button.secondary,
 }
 
 .brand-mark {
-  align-items: center;
-  background: var(--accent);
   border-radius: 9px;
-  color: var(--accent-ink);
-  display: inline-flex;
-  font-size: 0.72rem;
+  display: block;
+  flex-shrink: 0;
   height: 32px;
-  justify-content: center;
-  transform: rotate(-5deg);
+  object-fit: cover;
   width: 32px;
 }
 
@@ -235,6 +231,74 @@ h2 {
 
 .page-heading h1 {
   font-size: clamp(2.7rem, 6vw, 5.8rem);
+}
+
+.portfolio-heading {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+
+.portfolio-heading h1 {
+  font-size: clamp(1.85rem, 3vw, 2.6rem);
+  letter-spacing: -0.045em;
+  margin-bottom: 0;
+}
+
+.onboarding-banner {
+  margin-bottom: 1rem;
+  overflow: hidden;
+  padding: clamp(1.5rem, 4vw, 3rem);
+  position: relative;
+}
+
+.onboarding-banner::after {
+  background: var(--accent);
+  border-radius: 50%;
+  content: "";
+  filter: blur(55px);
+  height: 9rem;
+  opacity: 0.12;
+  position: absolute;
+  right: -2rem;
+  top: -3rem;
+  width: 9rem;
+}
+
+.onboarding-banner h2 {
+  font-size: clamp(2.15rem, 5vw, 4.4rem);
+  line-height: 0.98;
+  margin-bottom: 0.8rem;
+  max-width: 820px;
+}
+
+.onboarding-banner .lead {
+  margin-bottom: 0;
+}
+
+.onboarding-dismiss {
+  background: var(--panel-raised);
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  color: var(--muted);
+  font-size: 1.45rem;
+  height: 44px;
+  min-height: 44px;
+  padding: 0;
+  position: absolute;
+  right: 1rem;
+  top: 1rem;
+  width: 44px;
+  z-index: 1;
+}
+
+.onboarding-dismiss:hover {
+  color: var(--text);
+}
+
+html[data-portfolio-onboarding-dismissed="true"] .onboarding-banner {
+  display: none;
 }
 
 .panel {
@@ -954,6 +1018,23 @@ input[aria-invalid="true"] {
 
   .page-heading .button {
     width: 100%;
+  }
+
+  .portfolio-heading {
+    margin-bottom: 1rem;
+  }
+
+  .portfolio-heading .button {
+    min-height: 44px;
+  }
+
+  .onboarding-banner {
+    padding: 1.4rem;
+    padding-top: 3.7rem;
+  }
+
+  .onboarding-banner h2 {
+    font-size: clamp(2.2rem, 12vw, 3.25rem);
   }
 
   .metric {

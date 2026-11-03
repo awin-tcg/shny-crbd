@@ -13,6 +13,39 @@ test("collector sees portfolio value and exact-variant holdings", async ({
   await expect(page.getByText(/near mint/i)).toBeVisible();
 });
 
+test("portfolio introduction dismisses and stays dismissed", async ({
+  page,
+}) => {
+  await page.goto("/");
+
+  await expect(
+    page.getByRole("heading", { name: "Know what you hold." }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Portfolio", exact: true }),
+  ).toBeVisible();
+
+  await page
+    .getByRole("button", { name: "Dismiss portfolio introduction" })
+    .click();
+  await expect(
+    page.getByRole("heading", { name: "Know what you hold." }),
+  ).toHaveCount(0);
+
+  await page.reload();
+
+  await expect(
+    page.getByRole("heading", { name: "Know what you hold." }),
+  ).toHaveCount(0);
+  await expect(
+    page.getByRole("heading", { name: "Portfolio", exact: true }),
+  ).toBeVisible();
+  const preference = await page.evaluate(() =>
+    localStorage.getItem("crdbrd.portfolio-onboarding.dismissed.v1"),
+  );
+  expect(preference).toBe("true");
+});
+
 test("desktop keeps top navigation with an accessible active state", async ({
   page,
 }) => {

@@ -1,6 +1,7 @@
 import type { Portfolio } from "@cardboard/contracts";
 import Link from "next/link";
 import { PortfolioChart } from "../components/portfolio-chart";
+import { PortfolioOnboarding } from "../components/portfolio-onboarding";
 
 export const dynamic = "force-dynamic";
 
@@ -9,18 +10,13 @@ export default async function PortfolioPage() {
 
   return (
     <>
-      <section className="page-heading">
-        <div>
-          <p className="eyebrow">Private portfolio</p>
-          <h1>Know what you hold.</h1>
-          <p className="lead">
-            Exact variant pricing, visible freshness, and no mystery math.
-          </p>
-        </div>
+      <section className="portfolio-heading">
+        <h1>Portfolio</h1>
         <Link className="button" href="/search">
           Add cards
         </Link>
       </section>
+      <PortfolioOnboarding />
 
       {!portfolio ? (
         <div className="notice warning" role="alert">

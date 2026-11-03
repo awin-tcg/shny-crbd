@@ -14,7 +14,12 @@ import {
 import { StatusBar } from "expo-status-bar";
 import type { Card, Portfolio } from "@cardboard/contracts";
 import { getPortfolio, searchCards } from "./src/api";
-import { createMobileIdentity, type MobileSession } from "./src/auth";
+import {
+  createMobileIdentity,
+  dismissPortfolioOnboarding,
+  isPortfolioOnboardingDismissed,
+  type MobileSession,
+} from "./src/auth";
 
 type Tab = "portfolio" | "search";
 
@@ -43,9 +48,12 @@ export default function App() {
     return (
       <SafeAreaView style={styles.login}>
         <StatusBar style="light" />
-        <View style={styles.logo} accessible accessibilityLabel="SHNY CRBD">
-          <Text style={styles.logoText}>SC</Text>
-        </View>
+        <Image
+          source={require("./assets/icon.png")}
+          style={styles.logo}
+          accessible
+          accessibilityLabel="SHNY CRBD"
+        />
         <Text style={styles.hero}>Your collection,{`\n`}in focus.</Text>
         <Text style={styles.muted}>
           Exact card variants, clear market values, and private-by-default data.
@@ -121,6 +129,8 @@ function PortfolioScreen({
 }) {
   const [portfolio, setPortfolio] = useState<Portfolio | null>(null);
   const [error, setError] = useState("");
+  const [onboardingReady, setOnboardingReady] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(true);
 
   useEffect(() => {
     getPortfolio(session)
@@ -130,13 +140,47 @@ function PortfolioScreen({
       });
   }, [session]);
 
+  useEffect(() => {
+    isPortfolioOnboardingDismissed()
+      .then((dismissed) => setShowOnboarding(!dismissed))
+      .finally(() => setOnboardingReady(true));
+  }, []);
+
   if (error) return <Message text={error} />;
   if (!portfolio) return <Message loading text="Loading portfolio…" />;
 
   return (
     <ScrollView contentContainerStyle={styles.content}>
-      <Text style={styles.eyebrow}>PRIVATE PORTFOLIO</Text>
-      <Text style={styles.title}>Know what you hold.</Text>
+      <Text accessibilityRole="header" style={styles.portfolioTitle}>
+        Portfolio
+      </Text>
+      {onboardingReady && showOnboarding && (
+        <View
+          accessibilityLabel="Portfolio introduction"
+          style={styles.onboardingCard}
+        >
+          <Pressable
+            accessibilityLabel="Dismiss portfolio introduction"
+            accessibilityRole="button"
+            onPress={() => {
+              setShowOnboarding(false);
+              void dismissPortfolioOnboarding();
+            }}
+            style={styles.onboardingDismiss}
+          >
+            <Text style={styles.onboardingDismissText} aria-hidden>
+              ×
+            </Text>
+          </Pressable>
+          <Text style={styles.eyebrow}>PRIVATE PORTFOLIO</Text>
+          <Text accessibilityRole="header" style={styles.onboardingTitle}>
+            Know what you hold.
+          </Text>
+          <Text style={styles.muted}>
+            Exact variant pricing, visible freshness, and no mystery math.
+          </Text>
+        </View>
+      )}
       <View style={styles.valueCard}>
         <Text style={styles.valueLabel}>MARKET VALUE</Text>
         <Text style={styles.value}>{money(portfolio.marketValueCents)}</Text>
@@ -366,16 +410,11 @@ const styles = StyleSheet.create({
     padding: 28,
   },
   logo: {
-    alignItems: "center",
-    backgroundColor: "#a7f46b",
-    borderRadius: 14,
-    height: 52,
-    justifyContent: "center",
+    borderRadius: 16,
+    height: 72,
     marginBottom: 30,
-    transform: [{ rotate: "-5deg" }],
-    width: 52,
+    width: 72,
   },
-  logoText: { color: "#13210b", fontSize: 21, fontWeight: "900" },
   hero: {
     color: "#f6f7f9",
     fontSize: 48,
@@ -412,6 +451,52 @@ const styles = StyleSheet.create({
   wordmark: { color: "#f6f7f9", fontSize: 18, fontWeight: "900" },
   signOut: { color: "#98a3af", fontSize: 13 },
   content: { flexGrow: 1, padding: 20, paddingBottom: 24 },
+  portfolioTitle: {
+    color: "#f6f7f9",
+    fontSize: 28,
+    fontWeight: "800",
+    letterSpacing: -1,
+    marginBottom: 16,
+    marginTop: 6,
+  },
+  onboardingCard: {
+    backgroundColor: "#13171c",
+    borderColor: "#29313a",
+    borderRadius: 18,
+    borderWidth: 1,
+    marginBottom: 8,
+    overflow: "hidden",
+    padding: 20,
+    paddingTop: 42,
+    position: "relative",
+  },
+  onboardingTitle: {
+    color: "#f6f7f9",
+    fontSize: 36,
+    fontWeight: "800",
+    letterSpacing: -1.7,
+    lineHeight: 38,
+    marginBottom: 10,
+    marginTop: 8,
+  },
+  onboardingDismiss: {
+    alignItems: "center",
+    backgroundColor: "#1a2027",
+    borderColor: "#29313a",
+    borderRadius: 20,
+    borderWidth: 1,
+    height: 40,
+    justifyContent: "center",
+    position: "absolute",
+    right: 10,
+    top: 10,
+    width: 40,
+  },
+  onboardingDismissText: {
+    color: "#98a3af",
+    fontSize: 24,
+    lineHeight: 26,
+  },
   eyebrow: {
     color: "#a7f46b",
     fontSize: 11,

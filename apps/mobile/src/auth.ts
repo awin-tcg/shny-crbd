@@ -1,6 +1,7 @@
 import * as SecureStore from "expo-secure-store";
 
 const SESSION_KEY = "cardboard.session";
+const PORTFOLIO_ONBOARDING_KEY = "cardboard.portfolio-onboarding.dismissed.v1";
 
 export interface MobileSession {
   accessToken?: string;
@@ -40,4 +41,24 @@ export function createMobileIdentity(): MobileIdentity {
     );
   }
   return new MockMobileIdentity();
+}
+
+export async function isPortfolioOnboardingDismissed(): Promise<boolean> {
+  try {
+    return (
+      (await SecureStore.getItemAsync(PORTFOLIO_ONBOARDING_KEY)) === "true"
+    );
+  } catch {
+    return false;
+  }
+}
+
+export async function dismissPortfolioOnboarding(): Promise<void> {
+  try {
+    await SecureStore.setItemAsync(PORTFOLIO_ONBOARDING_KEY, "true", {
+      keychainAccessible: SecureStore.WHEN_UNLOCKED,
+    });
+  } catch {
+    // Dismissal still applies for the current session in the caller.
+  }
 }

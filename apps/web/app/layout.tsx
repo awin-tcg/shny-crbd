@@ -22,9 +22,14 @@ export default function RootLayout({
         </a>
         <header className="site-header">
           <Link className="brand" href="/" aria-label="SHNY CRBD home">
-            <span className="brand-mark" aria-hidden="true">
-              SC
-            </span>
+            {/* Brand mark is a static first-party asset; see assets/shny-crbd-logo.png. */}
+            <img
+              className="brand-mark"
+              src="/logo-mark.png"
+              alt=""
+              width={32}
+              height={32}
+            />
             <span>SHNY CRBD</span>
           </Link>
           <SiteNavigation />
