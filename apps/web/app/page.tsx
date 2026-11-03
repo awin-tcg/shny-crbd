@@ -34,6 +34,7 @@ function Dashboard({ portfolio }: { portfolio: Portfolio }) {
   const gainClass = portfolio.gainLossCents >= 0 ? "positive" : "negative";
   const firstSnapshot = portfolio.snapshots[0];
   const latestSnapshot = portfolio.snapshots.at(-1);
+  const totalItems = portfolio.valuedItems + portfolio.unpricedItems;
 
   return (
     <>
@@ -54,7 +55,12 @@ function Dashboard({ portfolio }: { portfolio: Portfolio }) {
         <Metric label="Cost basis" value={money(portfolio.costBasisCents)} />
         <Metric
           label="Priced cards"
-          value={portfolio.valuedItems.toLocaleString("en-US")}
+          value={`${portfolio.valuedItems.toLocaleString("en-US")} of ${totalItems.toLocaleString("en-US")}`}
+          detail={
+            portfolio.unpricedItems > 0
+              ? `${portfolio.unpricedItems.toLocaleString("en-US")} missing or stale · excluded from totals`
+              : "Exact variant · USD"
+          }
         />
       </section>
 
@@ -93,32 +99,6 @@ function Dashboard({ portfolio }: { portfolio: Portfolio }) {
           )}
         </article>
 
-        <aside
-          className="panel summary-panel"
-          data-dashboard-section="coverage"
-        >
-          <p className="eyebrow">Data quality</p>
-          <h2>Valuation coverage</h2>
-          <ul className="summary-list">
-            <li>
-              <span>Priced items</span>
-              <strong>{portfolio.valuedItems}</strong>
-            </li>
-            <li>
-              <span>Missing or stale</span>
-              <strong>{portfolio.unpricedItems}</strong>
-            </li>
-            <li>
-              <span>Currency</span>
-              <strong>USD</strong>
-            </li>
-            <li>
-              <span>Method</span>
-              <strong>Exact variant</strong>
-            </li>
-          </ul>
-        </aside>
-
         <article
           className="panel holdings-panel"
           data-dashboard-section="holdings"
@@ -128,11 +108,15 @@ function Dashboard({ portfolio }: { portfolio: Portfolio }) {
               <p className="eyebrow">Collection</p>
               <h2>Holdings</h2>
             </div>
-            <Link href="/search">Find another card →</Link>
+            <span className="subtle">
+              {portfolio.lines.length.toLocaleString("en-US")}{" "}
+              {portfolio.lines.length === 1 ? "lot" : "lots"}
+            </span>
           </div>
           {portfolio.lines.length === 0 ? (
             <div className="empty-state">
-              No cards yet. Search the catalog to add your first acquisition.
+              No cards yet. <Link href="/search">Search the catalog</Link> to
+              add your first acquisition.
             </div>
           ) : (
             portfolio.lines.map((line) => (
@@ -187,16 +171,19 @@ function Dashboard({ portfolio }: { portfolio: Portfolio }) {
 function Metric({
   label,
   value,
+  detail,
   className = "",
 }: {
   label: string;
   value: string;
+  detail?: string;
   className?: string;
 }) {
   return (
     <div className="metric">
       <span className="metric-label">{label}</span>
       <span className={`metric-value ${className}`}>{value}</span>
+      {detail && <span className="metric-sub">{detail}</span>}
     </div>
   );
 }

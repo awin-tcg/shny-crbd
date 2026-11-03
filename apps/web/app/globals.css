@@ -356,7 +356,7 @@ html[data-portfolio-onboarding-dismissed="true"] .onboarding-banner {
 .dashboard-grid {
   display: grid;
   gap: 1rem;
-  grid-template-columns: minmax(0, 1.7fr) minmax(270px, 0.7fr);
+  grid-template-columns: 1fr;
 }
 
 .chart-panel,

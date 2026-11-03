@@ -96,7 +96,15 @@ test("dashboard presents totals and chart before secondary details", async ({
       sections.map((section) => section.getAttribute("data-dashboard-section")),
     );
 
-  expect(sectionOrder).toEqual(["totals", "chart", "coverage", "holdings"]);
+  expect(sectionOrder).toEqual(["totals", "chart", "holdings"]);
+  const pricedMetric = page
+    .locator(".metric")
+    .filter({ hasText: "Priced cards" });
+  await expect(pricedMetric.locator(".metric-value")).toHaveText(/\d+ of \d+/);
+  await expect(pricedMetric.locator(".metric-sub")).toHaveText(
+    /missing or stale|Exact variant/,
+  );
+  await expect(page.getByText("Valuation coverage")).toHaveCount(0);
   await expect(
     page.getByRole("img", { name: /portfolio value changed/i }),
   ).toBeVisible();
