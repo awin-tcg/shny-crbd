@@ -13,6 +13,14 @@
   boundaries, threats, controls, verification, and residual risk. Status: living
   MVP security model. Latest content revision: `4ad1e16` (2026-07-15).
 
+## Roadmap
+
+- [Near-term backlog](roadmap/backlog.md) — Shipped checklist, iron-outs,
+  later modules, open decisions, and known limitations while developing.
+- [Future module boundaries](roadmap/future-modules.md) — Design and threat
+  boundaries for trade, vendor, friends, AI, and news work ahead of
+  implementation.
+
 ## Updating documentation
 
 Every change to a core document must update that document's revision history in

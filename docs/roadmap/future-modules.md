@@ -1,5 +1,7 @@
 # Future Module Boundaries
 
+Product sequencing and open decisions: [backlog.md](backlog.md).
+
 ## Trade workflow
 
 The current Trade tab is intentionally a local, temporary calculator. Saved drafts, counterparties, offers, acceptance, messaging, portfolio transfers, and transaction history remain future work. Adding any of those capabilities requires owner/counterparty authorization, immutable offer terms, replay protection, expiry and cancellation rules, audit events, and an explicit portfolio-transfer transaction.
