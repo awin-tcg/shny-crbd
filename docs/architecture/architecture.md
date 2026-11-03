@@ -8,7 +8,7 @@
 
 ### Revision history
 
-- Renamed the user-facing product to SHNY CRBD (2026-11-02).
+- `a42d662` (2026-11-02): Renamed the user-facing product to SHNY CRBD.
 - `e59dee4` (2026-07-15): Renamed the user-facing product to CRDBRD.
 - `4ad1e16` (2026-07-15): Added the temporary, client-side trade-analysis
   design and lifecycle constraints.
